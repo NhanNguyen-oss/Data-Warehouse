@@ -49,7 +49,14 @@ File ZIP cuối cùng gồm bốn thành phần bắt buộc:
 3. Dữ liệu mẫu trong `data/`, hoặc link Google Drive nếu bộ đầy đủ quá lớn.
 4. Slide PDF (đặt trong `docs/`).
 
-Nhóm trình bày bằng video: thêm link YouTube (chế độ unlisted) hoặc Google Drive **trên trang bìa báo cáo**.
+Nhóm trình bày bằng video: thêm link YouTube (chế độ unlisted) hoặc Google Drive **trên trang bìa báo cáo**. Mọi thành viên phải xuất hiện và trình bày.
+
+Quy ước hai thư mục nộp kèm:
+
+- `data/raw/`: file nguồn. Pipeline đọc `data/raw/source.csv` nếu file tồn tại. Chỉ để bản trích đủ để chấm bài chạy lại ETL.
+- `data/processed/`: file sinh ra sau ETL (khung mặc định ghi `fact_event.csv`). Không sửa tay file này.
+- Bộ dữ liệu đầy đủ quá lớn thì để bản mẫu trong `data/` và ghi link Google Drive (quyền xem) trong báo cáo. Không đưa dữ liệu cá nhân, hoặc dữ liệu doanh nghiệp khi chưa được phép.
+- `docs/`: đúng hai PDF trước khi nén ZIP — báo cáo bài tập lớn và slide thuyết trình.
 
 ## 3. Phân công
 
