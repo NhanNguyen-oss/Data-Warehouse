@@ -31,9 +31,10 @@ Kho dữ liệu là **cốt lõi**. Thành phần DSS đọc số liệu đã t�
 ```text
 .
 ├── GUIDE.md
+├── README.md              # đề tài, dữ liệu, cách chạy
 ├── data/                  # dữ liệu mẫu
 │   ├── raw/               # nguồn đầu vào của ETL
-│   └── processed/         # đầu ra trung gian (CSV) trước khi có CSDL
+│   └── processed/         # CSV do ETL sinh ra trước khi nạp CSDL
 ├── docs/                  # báo cáo PDF và slide PDF
 └── src/
     ├── database/schema.sql
@@ -53,8 +54,8 @@ Nhóm trình bày bằng video: thêm link YouTube (chế độ unlisted) hoặc
 
 Quy ước hai thư mục nộp kèm:
 
-- `data/raw/`: file nguồn. Pipeline đọc `data/raw/source.csv` nếu file tồn tại. Chỉ để bản trích đủ để chấm bài chạy lại ETL.
-- `data/processed/`: file sinh ra sau ETL (khung mặc định ghi `fact_event.csv`). Không sửa tay file này.
+- `data/raw/`: ba file CSV STATS19 và file tra mã của DfT. Mô tả chi tiết nằm trong `README.md`.
+- `data/processed/`: mỗi bảng `dw.*` một file CSV, cùng `etl_report.csv`, do ETL sinh ra. Không sửa tay và không commit các file này.
 - Bộ dữ liệu đầy đủ quá lớn thì để bản mẫu trong `data/` và ghi link Google Drive (quyền xem) trong báo cáo. Không đưa dữ liệu cá nhân, hoặc dữ liệu doanh nghiệp khi chưa được phép.
 - `docs/`: đúng hai PDF trước khi nén ZIP — báo cáo bài tập lớn và slide thuyết trình.
 
@@ -134,20 +135,21 @@ Gợi ý lĩnh vực trong đề (không bắt buộc): bán lẻ, ngân hàng, 
 
 **Việc cần làm**
 
-1. Chốt star schema hoặc snowflake. Star là mặc định trong `src/database/schema.sql`. Chỉ snowflake hóa nhánh phân cấp nào thực sự cần quản lý riêng.
-2. Với mỗi fact, ghi grain, loại fact (transaction, periodic snapshot hoặc accumulating snapshot) và loại measure (additive, semi-additive, non-additive).
-3. Gán surrogate key cho dimension. Giữ business key để truy vết nguồn.
-4. Chọn SCD. Thuộc tính hay đổi và cần xem theo lịch sử thì dùng Type 2 (cột `effective_from`, `effective_to`, `is_current` đã có trong khung).
-5. Sửa `extract`, `transform`, `load` trong `src/etl/pipeline.py`.
-6. Đối soát: số dòng nguồn, số dòng bị loại, tổng measure trước và sau khi nạp.
+1. Rà mô hình trong `src/database/schema.sql`: ba star schema (`fact_collision`, `fact_vehicle`, `fact_casualty`) dùng chung các dimension. Nếu muốn có ví dụ snowflake trong báo cáo, chỉ tách nhánh phân cấp địa điểm (quận huyện, lực lượng cảnh sát) ra bảng riêng.
+2. Với mỗi fact, ghi grain, loại fact (transaction, periodic snapshot hoặc accumulating snapshot) và loại measure (additive, semi-additive, non-additive). Comment đầu mỗi bảng fact đã có gợi ý.
+3. Surrogate key do ETL sinh. Business key (`collision_index`, `vehicle_reference`, `casualty_reference`) được giữ lại trong fact để truy vết nguồn.
+4. SCD: các dimension hiện là hồ sơ mã (junk/profile dimension) và không đổi theo thời gian, nên không cần SCD. Ứng viên để minh họa SCD Type 2 là ranh giới quận huyện: dữ liệu có cả `local_authority_highway` và `local_authority_highway_current`.
+5. Nếu đổi mô hình, sửa đồng thời danh sách cột trong `src/etl/pipeline.py` (các hằng `*_COLUMNS`, `*_FIELDS`) và DDL trong `schema.sql`. Tên cột hai bên phải khớp.
+6. Đối soát: `data/processed/etl_report.csv` ghi số dòng đã đọc, đã nạp, bị loại, và so số xe / số nạn nhân khai trong bảng va chạm với số dòng đã nạp.
 
-Chạy thử khung hiện tại:
+Chạy ETL:
 
 ```bash
-python src/etl/pipeline.py
+python src/etl/pipeline.py                 # đủ 5 năm, khoảng 2 phút
+python src/etl/pipeline.py --limit 5000    # bản nhỏ để thử nhanh
 ```
 
-Khi chưa có file nguồn, pipeline dùng vài dòng demo và ghi `data/processed/fact_event.csv`. Đặt CSV thật tại `data/raw/source.csv` (cột `txn_id`, `txn_date`, `entity_id`, `entity_name`, `amount`, `quantity`) để đi theo nhánh đọc file. Đổi tên cột cho khớp đề tài, đừng giữ mãi dữ liệu demo.
+Kết quả là các file `data/processed/<bảng>.csv`, mỗi bảng `dw.*` một file. Lần chạy đủ 5 năm gần nhất nạp 513.801 vụ, 937.265 xe và 652.821 nạn nhân, không loại dòng nào, đối soát khớp.
 
 **Sản phẩm.** `schema.sql` chạy được, sơ đồ sao/bông tuyết trong báo cáo, pipeline nạp được dữ liệu mẫu, bảng đối soát số liệu.
 
@@ -159,9 +161,9 @@ Khi chưa có file nguồn, pipeline dùng vài dòng demo và ghi `data/process
 
 **Việc cần làm**
 
-1. Tạo CSDL và chạy `src/database/schema.sql`. Khung viết cho PostgreSQL. Nếu dùng SQL Server hoặc MySQL, đổi kiểu khóa tăng tự động và kiểu boolean theo ghi chú đầu file.
-2. Nối `load()` của ETL vào `dw.dim_date`, `dw.dim_entity`, `dw.fact_event` bằng một transaction. Không ghi đè fact khi chạy lại mà chưa có khóa chống trùng.
-3. Viết ít nhất bốn truy vấn: slice, dice, roll-up, drill-down. Mẫu nằm cuối `schema.sql`.
+1. Tạo CSDL PostgreSQL và chạy `src/database/schema.sql`.
+2. Đặt biến môi trường `DW_DATABASE_URL`, rồi chạy `python src/etl/pipeline.py --load`. ETL xóa dữ liệu cũ trong `dw.*` và nạp lại toàn bộ bằng `COPY` trong một transaction, nên chạy lại nhiều lần không bị trùng.
+3. Viết ít nhất bốn truy vấn: slice, dice, roll-up, drill-down. Mẫu nằm cuối `schema.sql`, kèm view `dw.v_local_authority_year` cho dashboard và DSS.
 4. Dựng dashboard từ `src/frontend/app.py`.
 
 ```bash

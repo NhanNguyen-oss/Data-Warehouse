@@ -1,4 +1,4 @@
-# Kho dữ liệu và Hệ hỗ trợ Quyết định trên dữ liệu chứng khoán NIFTY-50
+# Kho dữ liệu và Hệ hỗ trợ Quyết định về an toàn giao thông đường bộ (STATS19, Anh 2021–2025)
 
 Bài tập lớn môn **Kho dữ liệu và Hệ hỗ trợ Quyết định** (CO4031), học kỳ 261, năm học 2026–2027.
 Giảng viên: Đỗ Thanh Thái. Hạn nộp: **23:59 ngày 15/11/2026**.
@@ -19,39 +19,54 @@ Lộ trình chi tiết, yêu cầu của đề và checklist nộp bài nằm tr
 
 Các hướng đang cân nhắc:
 
-1. Chọn ngành để tăng tỷ trọng trong quý tới (nhà đầu tư cá nhân).
-2. Sàng lọc cổ phiếu cho danh mục dài hạn (quản lý quỹ).
-3. Chọn ngành, mã phòng thủ khi thị trường khủng hoảng (so sánh giai đoạn 2008 và 2020).
-4. Chọn thời điểm đặt lệnh lớn để ít ảnh hưởng giá (quỹ đầu tư).
-5. Xếp hạng ký quỹ theo quý (bộ phận quản trị rủi ro của công ty chứng khoán).
+1. Xếp hạng quận huyện cần ưu tiên ngân sách an toàn giao thông năm tới (chính quyền địa phương).
+2. Chọn khung giờ, loại đường và điều kiện thời tiết để tăng tuần tra hoặc kiểm soát tốc độ (cảnh sát).
+3. Chọn nhóm người tham gia giao thông dễ bị tổn thương (đi bộ, xe đạp, xe máy, e-scooter) cho chiến dịch truyền thông.
+4. Chọn loại nút giao hoặc mức giới hạn tốc độ cần cải tạo hạ tầng trước.
 
-KPI dự kiến: lợi nhuận, độ biến động, giá trị giao dịch và tỷ lệ giao nhận thực theo ngành và theo thời gian.
+KPI dự kiến: số vụ, số nạn nhân, **KSI hiệu chỉnh** (số người chết hoặc bị thương nặng, đã hiệu chỉnh) và tỷ lệ KSI trên tổng số vụ. Các KPI này được xem theo địa bàn, thời gian, điều kiện đường và loại phương tiện.
 
 ## Dữ liệu
 
-- **Nguồn:** [NIFTY-50 Stock Market Data (2000 - 2021)](https://www.kaggle.com/datasets/rohanrao/nifty50-stock-market-data) trên Kaggle, Version 15, dữ liệu gốc từ NSE India.
-- **Giấy phép:** _(kiểm tra mục License trên Kaggle và điền)_.
-- **Phạm vi:** 50 cổ phiếu thuộc chỉ số NIFTY-50, giao dịch hằng ngày từ 03/01/2000 đến 30/04/2021, tổng cộng 235.192 dòng.
+- **Nguồn:** [Road safety open data](https://www.gov.uk/government/statistical-data-sets/road-safety-open-data) của Bộ Giao thông Anh (Department for Transport, DfT), hệ thống ghi nhận STATS19. Dùng bộ "last 5 years", bản dữ liệu chính thức cho năm 2025.
+- **Giấy phép:** Open Government Licence v3.0. Được phép dùng lại, kể cả cho mục đích học tập, nếu ghi nguồn.
+- **Phạm vi:** các vụ tai nạn giao thông có người bị thương trên đường công cộng tại Anh, xứ Wales và Scotland, được cảnh sát ghi nhận, từ 01/01/2021 đến 31/12/2025.
 
 Các file trong `data/raw/`:
 
-| File | Nội dung |
-| --- | --- |
-| `<MÃ>.csv` (50 file) | Giá và khối lượng giao dịch theo ngày của từng mã |
-| `NIFTY50_all.csv` | Gộp của 50 file trên, trùng hoàn toàn. ETL không đọc file này |
-| `stock_metadata.csv` | Tên công ty, ngành, mã hiện hành, mã ISIN |
+| File | Một dòng là | Số dòng | Số cột |
+| --- | --- | --- | --- |
+| `dft-road-casualty-statistics-collision-last-5-years.csv` | một vụ va chạm | 513.801 | 44 |
+| `dft-road-casualty-statistics-vehicle-last-5-years.csv` | một xe trong một vụ | 937.265 | 32 |
+| `dft-road-casualty-statistics-casualty-last-5-years.csv` | một nạn nhân | 652.821 | 24 |
+| `dft-road-casualty-statistics-road-safety-open-dataset-data-guide-2025.xlsx` | bảng tra mã sang nhãn (sheet `2024_code_list`) | 1.777 nhãn | — |
 
-Các cột của file giá: `Date, Symbol, Series, Prev Close, Open, High, Low, Last, Close, VWAP, Volume, Turnover, Trades, Deliverable Volume, %Deliverble`.
+Ba bảng nối với nhau qua `collision_index`. Bảng xe và bảng nạn nhân nối thêm qua `vehicle_reference`.
 
-### Đặc điểm dữ liệu cần xử lý trong ETL
+### Đặc điểm dữ liệu và cách ETL xử lý
 
-- **`Turnover` bị phóng to 100.000 lần:** `Turnover / (VWAP × Volume)` luôn xấp xỉ 100.000. Giá trị giao dịch thực tính bằng rupee là `Turnover / 100000`.
-- **Giá chưa điều chỉnh** cho chia tách và thưởng cổ phiếu: có 163 phiên biến động quá 20%. Trong đó có các ngày chia tách (giảm khoảng 50%, 80%, 90%), các ngày niêm yết (`Prev Close` là mệnh giá) và các biến động thật (phiên tăng trần, COVID tháng 3/2020).
-- **Đổi mã chứng khoán:** 16 trên 50 công ty từng đổi mã (ví dụ `INFOSYSTCH` sang `INFY`, `UTIBANK` sang `AXISBANK`). Business key là tên file hoặc mã ISIN, còn mã chứng khoán được theo dõi bằng SCD Type 2.
-- **Không khớp tên:** metadata ghi mã `M&M` nhưng tên file là `MM.csv`.
-- **Dữ liệu thiếu có quy luật:** `Trades` chỉ có từ 01/06/2011; `Deliverable Volume` và `%Deliverble` chỉ có từ năm 2002. Lưu là NULL, không thay bằng 0.
-- **Phân bố ngành lệch:** 13 ngành, trong đó 5 ngành chỉ có 1 mã.
-- Cột `Series` luôn là `EQ`, không có ngày trùng và không có giá âm.
+- **Liên kết sạch.** Không có xe hay nạn nhân nào trỏ tới vụ không tồn tại, và không có khóa trùng. Cột `number_of_vehicles` và `number_of_casualties` khớp 100% với số dòng chi tiết. ETL dùng hai cột này để đối soát sau mỗi lần chạy.
+- **Dữ liệu dạng mã số.** Ví dụ `weather_conditions = 2`. ETL đọc file tra mã chính thức để ghi kèm nhãn (`Raining no high winds`) vào cột `<tên cột>_label` của dimension.
+- **`-1` nghĩa là thiếu dữ liệu.** Với cột mã, `-1` được giữ nguyên và gắn nhãn `Data missing or out of range`. Với cột số đo (tuổi, dung tích động cơ, tuổi xe), `-1` được lưu là NULL.
+- **Cột bị thay thế.** `local_authority_district` gần như toàn `-1` (513.607 trên 513.801 dòng), nên ETL dùng `local_authority_ons_district`. Các cột có đuôi `_historic` là mã hóa cũ và không được nạp.
+- **Hiệu chỉnh mức độ nghiêm trọng.** 309.049 vụ được ghi theo hệ thống báo cáo dựa trên thương tích, làm số ca "nặng" tăng so với cách ghi cũ. DfT cung cấp xác suất đã hiệu chỉnh (`*_adjusted_severity_serious/slight`). Kho lưu cả số gốc và số hiệu chỉnh. Khi so sánh giữa các năm hoặc địa bàn, dùng `KSI hiệu chỉnh = SUM(fatal_count) + SUM(adjusted_serious)`.
+- **Mã mới chưa có trong file tra mã 2025.** Gồm 7 mã quận huyện sau tái cơ cấu hành chính (E06000063–E06000066, E08000038, E08000039, E07000246) và `casualty_type = 33`, mã DfT thêm vào bản sửa đổi tháng 9/2026. Các dòng này có nhãn `Code ... (not in data guide)`. Cần bổ sung nhãn khi DfT phát hành file tra mã mới.
+- **Mức độ thiếu dữ liệu.** Thiếu nhiều ở `generic_make_model`, `age_of_vehicle`, `engine_capacity_cc` và `driver_distance_banding`. Không nên dùng các cột này làm tiêu chí chính của DSS.
+
+## Mô hình kho dữ liệu
+
+Kho dùng mô hình fact constellation: ba star schema dùng chung các dimension. Chi tiết nằm trong `src/database/schema.sql`.
+
+| Fact | Grain | Measure chính |
+| --- | --- | --- |
+| `fact_collision` | một vụ va chạm | số xe, số nạn nhân, cờ tử vong / nặng / nhẹ, số hiệu chỉnh, tọa độ |
+| `fact_vehicle` | một xe trong một vụ | số xe, tuổi người lái, dung tích động cơ, tuổi xe |
+| `fact_casualty` | một nạn nhân | số nạn nhân, cờ tử vong / nặng / nhẹ, số hiệu chỉnh, tuổi nạn nhân |
+
+Các dimension dùng chung: `dim_date`, `dim_time`, `dim_location`, `dim_road`, `dim_conditions`, `dim_severity`.
+Các dimension riêng: `dim_vehicle`, `dim_driver`, `dim_vehicle_action`, `dim_casualty`.
+
+View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KSI hiệu chỉnh theo quận huyện và năm. View này là đầu vào cho dashboard và DSS.
 
 ## Cấu trúc thư mục
 
@@ -60,11 +75,11 @@ Các cột của file giá: `Date, Symbol, Series, Prev Close, Open, High, Low, 
 ├── GUIDE.md               # lộ trình và yêu cầu bài tập lớn
 ├── README.md
 ├── data/
-│   ├── raw/               # dữ liệu nguồn NIFTY-50
-│   └── processed/         # đầu ra trung gian của ETL (không sửa tay)
+│   ├── raw/               # 3 file CSV STATS19 và file tra mã của DfT
+│   └── processed/         # CSV do ETL sinh ra, mỗi bảng dw.* một file (không commit)
 ├── docs/                  # báo cáo PDF và slide PDF
 └── src/
-    ├── database/schema.sql    # DDL kho dữ liệu và truy vấn OLAP
+    ├── database/schema.sql    # DDL kho dữ liệu, view và truy vấn OLAP mẫu
     ├── etl/pipeline.py        # Extract, Transform, Load
     ├── frontend/app.py        # dashboard Streamlit
     └── dss/model.py           # mô hình hỗ trợ quyết định
@@ -72,38 +87,45 @@ Các cột của file giá: `Date, Symbol, Series, Prev Close, Open, High, Low, 
 
 ## Cài đặt và chạy
 
-Yêu cầu: Python 3.11 trở lên và PostgreSQL.
+Cần Python 3.10 trở lên và PostgreSQL 13 trở lên. Bản thân ETL chỉ dùng thư viện chuẩn. Thư viện `psycopg` chỉ cần khi nạp vào CSDL.
 
 ```bash
-pip install pandas streamlit "psycopg[binary]"
+pip install "psycopg[binary]" streamlit pandas
 ```
 
 Thứ tự chạy:
 
 ```bash
-# 1. Tạo schema kho dữ liệu
-psql -d <ten_csdl> -f src/database/schema.sql
+# 1. Tạo CSDL và schema kho dữ liệu
+createdb road_safety_dw
+psql -d road_safety_dw -f src/database/schema.sql
 
-# 2. Chạy ETL
+# 2. Chạy ETL: ghi data/processed/*.csv và etl_report.csv (khoảng 2 phút, 175 MB cho đủ 5 năm)
 python src/etl/pipeline.py
+python src/etl/pipeline.py --years 2025      # chỉ một năm
+python src/etl/pipeline.py --limit 5000      # bản nhỏ để thử
 
-# 3. Mở dashboard
+# 3. Nạp vào PostgreSQL (PowerShell; trên bash dùng export)
+$env:DW_DATABASE_URL = "postgresql://<user>:<password>@localhost:5432/road_safety_dw"
+python src/etl/pipeline.py --load
+
+# 4. Mở dashboard
 streamlit run src/frontend/app.py
 
-# 4. Chạy mô hình DSS
+# 5. Chạy mô hình DSS
 python src/dss/model.py
 ```
 
-Chuỗi kết nối CSDL đọc từ biến môi trường hoặc file `.env` (đã có trong `.gitignore`). Không ghi mật khẩu vào mã nguồn.
+Mỗi lần chạy `--load`, ETL xóa dữ liệu cũ trong các bảng `dw.*` rồi nạp lại toàn bộ trong một transaction. Chuỗi kết nối đọc từ biến môi trường, không ghi mật khẩu vào mã nguồn. File `.env` đã có trong `.gitignore`.
 
 ## Trạng thái
 
-Các file trong `src/` hiện vẫn là khung mẫu của môn học và chạy trên dữ liệu demo, chưa đọc dữ liệu NIFTY-50.
+`schema.sql` và `pipeline.py` đã viết theo dữ liệu STATS19. `frontend/app.py` và `dss/model.py` vẫn là khung mẫu và đang chạy trên dữ liệu demo.
 
 | Giai đoạn | Nội dung | Hạn | Trạng thái |
 | --- | --- | --- | --- |
 | 1 | Chốt bài toán, KPI, nguồn dữ liệu | 04/10 | Đã chọn và khảo sát dữ liệu, chưa chốt bài toán |
-| 2 | Schema và ETL | 25/10 | Chưa bắt đầu |
+| 2 | Schema và ETL | 25/10 | ETL chạy đủ 5 năm ra CSV, đối soát khớp; chưa chạy thử nạp PostgreSQL |
 | 3 | CSDL, OLAP, dashboard | 01/11 | Chưa bắt đầu |
 | 4 | DSS trên số liệu của kho | 08/11 | Chưa bắt đầu |
 | 5 | Đánh giá, hạn chế, hướng phát triển | 12/11 | Chưa bắt đầu |
