@@ -152,6 +152,7 @@ Nguồn DfT Traffic Counts không commit vào Git. Tải về `data/raw/traffic/
 ```bash
 python src/etl/sources.py fetch      # tải file còn thiếu, không ghi đè file đã có
 python src/etl/sources.py verify     # so sha256 với data/manifest/source_manifest.json
+python src/etl/profiling.py          # profiling S2 -> reports/profiling/PROFILE.md (khoảng 15 giây)
 python -m unittest discover -s tests
 ```
 
