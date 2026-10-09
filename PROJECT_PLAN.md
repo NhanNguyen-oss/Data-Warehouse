@@ -286,7 +286,7 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | Ưu tiên | Việc tiếp theo | Trạng thái |
 |---|---|---|
 | P0 | Kiểm tra Windows version, tài nguyên, WSL2/Docker và công cụ đã có | Done 2026-10-10 — kết quả ở phiên 0.3.1 |
-| P0 | Container health check trên máy Windows | Pending — mở Docker Desktop, chạy `scripts\check_db.ps1`, dán kết quả (kỳ vọng `healthy` và 14 bảng/view trong `dw`) |
+| P0 | Container health check trên máy Windows | Done một phần 2026-10-10 — container `healthy` trên máy người dùng; bước đếm bảng lỗi do PowerShell 5.1 làm mất dấu nháy (đã sửa). Chờ chạy lại để xác nhận 14 bảng/view trong `dw` |
 | P0 | Chốt phạm vi MVP London và năm sau kiểm tra metadata | Pending — chờ profiling và người dùng |
 | P0 | Chốt bài toán: README hay hướng B (D08) | Pending — cần người dùng |
 | P0 | Lấy đúng ba datasets, inventory và source manifest | Done 2026-10-10 — `data/manifest/source_manifest.json` |
@@ -315,6 +315,8 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | psql | Không có | Không cần; dùng `docker compose exec db psql` |
 | VS Code | 1.118.1 | Đủ |
 | WSL | default `docker-desktop`, version 2 | Chưa có distro Linux riêng; không cần cho phương án D12 |
+
+Lần chạy `scripts\check_db.ps1` đầu tiên trên máy người dùng: `db health healthy`, nhưng ba truy vấn psql không trả gì và script dừng ở `$tables.Trim()` (null). Nguyên nhân: Windows PowerShell 5.1 bỏ dấu nháy kép lồng trong đối số truyền cho chương trình ngoài, nên lệnh `sh -c '... "$POSTGRES_USER" ... "select ..."'` tới psql bị vỡ. Bản sửa truyền SQL qua stdin, dùng `ON_ERROR_STOP` và báo lỗi rõ khi truy vấn không có kết quả. Đã chạy bản sửa end-to-end trên máy agent (Docker 29.1.3, PowerShell 7.4.6): `healthy`, PostgreSQL 16.4, PostGIS 3.4.3, 14 bảng/view trong `dw`. Chưa chạy lại trên Windows PowerShell 5.1.
 
 Quyết định D12: chạy Windows host + Docker Desktop (WSL2 backend) cho PostgreSQL/PostGIS; ETL và test chạy bằng Python 3.13 trong `.venv` trên Windows (mã chỉ dùng thư viện chuẩn và `pathlib`, không phụ thuộc hệ điều hành). Không cần cài distro Ubuntu trong WSL. Thêm `scripts/check_db.ps1` để hoàn tất S0.
 
@@ -348,5 +350,6 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.2.1 | 2026-10-10 | Profiling S2 tái lập; xác nhận 8 con số cũ; ghi phát hiện link length Minor, làm tròn nhóm phương tiện, số dạng khoa học, lệch mã authority | `reports/profiling/PROFILE.md`; 10 unittest |
 | 0.3.0 | 2026-10-10 | Authority–year PoC (S3 A+B); mapping contract (D10); gate trước thiết kế vật lý đạt về dữ liệu, còn chờ chốt phạm vi; cờ injury-based không đáng tin (D11) | `reports/poc/RECONCILIATION.md`; 16 unittest |
 | 0.3.1 | 2026-10-10 | Ghi cấu hình máy Windows; chọn môi trường D12; sửa `check_env.ps1` (hypervisor, docker engine); thêm `check_db.ps1` | Output `check_env.ps1` do người dùng gửi; `check_db.ps1` chưa chạy |
+| 0.3.2 | 2026-10-10 | Container `healthy` trên máy người dùng; sửa lỗi quoting PowerShell 5.1 trong `check_db.ps1` | Output người dùng gửi; chạy end-to-end trên máy agent: healthy, PG 16.4, PostGIS 3.4.3, 14 bảng/view |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.
