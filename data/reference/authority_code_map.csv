@@ -1,0 +1,4 @@
+source,from_code,to_code,year_from,year_to,reason
+stats19,EHEATHROW,E09000017,2021,2025,Heathrow Airport nằm trong London Borough of Hillingdon; Traffic không có mã EHEATHROW
+stats19,E08000038,E08000016,2021,2025,Barnsley đổi mã ONS; DfT Traffic 2021-2025 vẫn dùng mã cũ E08000016
+stats19,E08000039,E08000019,2021,2025,Sheffield đổi mã ONS; DfT Traffic 2021-2025 vẫn dùng mã cũ E08000019
