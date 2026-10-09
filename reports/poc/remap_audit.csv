@@ -1,0 +1,11 @@
+source,year,from_code,to_code,method,rows
+aadf,2021,E10000021,E06000062,count_point_later_code,1
+aadf,2023,E10000006,E06000063,count_point_later_code,5
+aadf,2023,E10000006,E06000064,count_point_later_code,5
+stats19,2021,EHEATHROW,E09000017,authority_code_map,12
+stats19,2022,EHEATHROW,E09000017,authority_code_map,25
+stats19,2023,EHEATHROW,E09000017,authority_code_map,19
+stats19,2024,EHEATHROW,E09000017,authority_code_map,33
+stats19,2025,E08000038,E08000016,authority_code_map,364
+stats19,2025,E08000039,E08000019,authority_code_map,838
+stats19,2025,EHEATHROW,E09000017,authority_code_map,30
