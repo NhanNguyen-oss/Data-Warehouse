@@ -2,9 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.3.1
+- Phiên bản: 0.3.2
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0: đã có thông tin máy Windows, chọn Windows host + Docker Desktop (D12); còn chờ container health check trên máy người dùng. S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
+- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0: đã có thông tin máy Windows, chọn Windows host + Docker Desktop (D12); container `healthy` trên máy người dùng; chờ chạy lại `check_db.ps1` bản sửa để xác nhận 14 bảng/view. S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
