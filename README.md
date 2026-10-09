@@ -108,13 +108,23 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
 ```text
 .
 ├── GUIDE.md               # lộ trình và yêu cầu bài tập lớn
+├── PROJECT_PLAN.md        # kế hoạch sống, decision log, bàn giao giữa các phiên
 ├── README.md
+├── compose.yaml           # PostgreSQL/PostGIS bằng Docker
+├── .env.example           # cấu hình mẫu, chép thành .env (không commit)
+├── requirements.txt
 ├── data/
 │   ├── raw/               # 3 file CSV STATS19 và file tra mã của DfT
+│   │   └── traffic/       # DfT Traffic Counts, tải bằng sources.py (không commit)
+│   ├── manifest/          # source_manifest.json: sha256, kích thước, số dòng
+│   ├── staging/           # dữ liệu trung gian (không commit)
 │   └── processed/         # CSV do ETL sinh ra, mỗi bảng dw.* một file (không commit)
 ├── docs/                  # báo cáo PDF và slide PDF
+├── scripts/check_env.ps1  # kiểm tra môi trường Windows (stage S0)
+├── tests/                 # unittest, chạy bằng python -m unittest discover -s tests
 └── src/
     ├── database/schema.sql    # DDL kho dữ liệu, view và truy vấn OLAP mẫu
+    ├── etl/sources.py         # danh mục nguồn, tải, manifest có checksum
     ├── etl/pipeline.py        # Extract, Transform, Load
     ├── frontend/app.py        # dashboard Streamlit
     └── dss/model.py           # mô hình hỗ trợ quyết định
@@ -125,7 +135,24 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
 Cần Python 3.10 trở lên và PostgreSQL 13 trở lên. Bản thân ETL chỉ dùng thư viện chuẩn. Thư viện `psycopg` chỉ cần khi nạp vào CSDL.
 
 ```bash
-pip install "psycopg[binary]" streamlit pandas
+pip install -r requirements.txt
+```
+
+Trên Windows, chạy `powershell -ExecutionPolicy Bypass -File scripts\check_env.ps1` để kiểm tra Git, Python, Docker và WSL2, rồi dán kết quả vào mục 12 của [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
+
+Nếu có Docker, có thể dựng PostgreSQL/PostGIS bằng `compose.yaml` thay cho bước `createdb` bên dưới. Lần chạy đầu tiên tự chạy `schema.sql`.
+
+```bash
+cp .env.example .env          # sửa mật khẩu trong .env
+docker compose up -d db
+```
+
+Nguồn DfT Traffic Counts không commit vào Git. Tải về `data/raw/traffic/` và kiểm tra sha256 với manifest đã commit:
+
+```bash
+python src/etl/sources.py fetch      # tải file còn thiếu, không ghi đè file đã có
+python src/etl/sources.py verify     # so sha256 với data/manifest/source_manifest.json
+python -m unittest discover -s tests
 ```
 
 Thứ tự chạy:
