@@ -1,0 +1,874 @@
+{
+  "run": {
+    "run_id": "cb356a9e873c",
+    "finished_at_utc": "2026-10-09T17:12:46+00:00",
+    "duration_seconds": 13.6,
+    "python": "3.12.3",
+    "filters": {
+      "years": [
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025"
+      ]
+    },
+    "sources": {
+      "stats19_collision": {
+        "path": "data/raw/dft-road-casualty-statistics-collision-last-5-years.csv",
+        "sha256": "06a03c0e5504175e23ed98e3e0b4767ac61d396c073405a1bddab9339c18f948"
+      },
+      "traffic_aadf": {
+        "path": "data/raw/traffic/dft_traffic_counts_aadf.zip",
+        "sha256": "5273cf63da4ca8b317bfe972d8a345e7932db0fff7a7789998a890f0081232b6"
+      },
+      "traffic_count_points": {
+        "path": "data/raw/traffic/count_points.zip",
+        "sha256": "4772abb13761694f35c7aba6d83915c5c168e94a0d25ae401e4b7e84ef7fcff2"
+      },
+      "traffic_local_authority": {
+        "path": "data/raw/traffic/local_authority_traffic.csv",
+        "sha256": "058a61b9f6f7d07a9363c339829c6723fdecc4270f500611d1790eae6da7b9fc"
+      }
+    }
+  },
+  "stats19_collision": {
+    "rows_total": 513801,
+    "rows_in_scope": 513801,
+    "rows_by_collision_year": {
+      "2021": 101087,
+      "2022": 106004,
+      "2023": 104258,
+      "2024": 100927,
+      "2025": 101525
+    },
+    "key": {
+      "column": "collision_index",
+      "empty": 0,
+      "duplicates": 0,
+      "unique": 513801
+    },
+    "date_unparseable": 0,
+    "date_year_differs_from_collision_year": 0,
+    "time_unparseable": 0,
+    "severity_by_year": {
+      "2021": {
+        "fatal": 1474,
+        "serious": 21284,
+        "slight": 78329
+      },
+      "2022": {
+        "fatal": 1602,
+        "serious": 23333,
+        "slight": 81069
+      },
+      "2023": {
+        "fatal": 1522,
+        "serious": 23438,
+        "slight": 79298
+      },
+      "2024": {
+        "fatal": 1502,
+        "serious": 23567,
+        "slight": 75858
+      },
+      "2025": {
+        "fatal": 1453,
+        "serious": 25191,
+        "slight": 74881
+      }
+    },
+    "severe_share_by_year_pct": {
+      "2021": 22.51,
+      "2022": 23.52,
+      "2023": 23.94,
+      "2024": 24.84,
+      "2025": 26.24
+    },
+    "injury_based_share_by_year_pct": {
+      "2021": 49.62,
+      "2022": 52.57,
+      "2023": 53.73,
+      "2024": 58.75,
+      "2025": 86.53
+    },
+    "sentinel_empty_or_minus1": {
+      "local_authority_district": {
+        "count": 513607,
+        "pct": 99.96
+      },
+      "junction_control": {
+        "count": 217897,
+        "pct": 42.41
+      },
+      "enhanced_severity_collision": {
+        "count": 204752,
+        "pct": 39.85
+      },
+      "second_road_number": {
+        "count": 178098,
+        "pct": 34.66
+      },
+      "special_conditions_at_site": {
+        "count": 151370,
+        "pct": 29.46
+      },
+      "carriageway_hazards_historic": {
+        "count": 151367,
+        "pct": 29.46
+      },
+      "pedestrian_crossing_human_control_historic": {
+        "count": 150889,
+        "pct": 29.37
+      },
+      "pedestrian_crossing_physical_facilities_historic": {
+        "count": 150860,
+        "pct": 29.36
+      },
+      "junction_detail_historic": {
+        "count": 147476,
+        "pct": 28.7
+      },
+      "trunk_road_flag": {
+        "count": 36318,
+        "pct": 7.07
+      },
+      "lsoa_of_accident_location": {
+        "count": 20587,
+        "pct": 4.01
+      },
+      "junction_detail": {
+        "count": 19982,
+        "pct": 3.89
+      },
+      "second_road_class": {
+        "count": 11566,
+        "pct": 2.25
+      },
+      "pedestrian_crossing": {
+        "count": 11238,
+        "pct": 2.19
+      },
+      "carriageway_hazards": {
+        "count": 9891,
+        "pct": 1.93
+      },
+      "road_surface_conditions": {
+        "count": 3527,
+        "pct": 0.69
+      },
+      "location_easting_osgr": {
+        "count": 53,
+        "pct": 0.01
+      },
+      "location_northing_osgr": {
+        "count": 53,
+        "pct": 0.01
+      },
+      "longitude": {
+        "count": 53,
+        "pct": 0.01
+      },
+      "latitude": {
+        "count": 53,
+        "pct": 0.01
+      },
+      "local_authority_highway_current": {
+        "count": 53,
+        "pct": 0.01
+      },
+      "light_conditions": {
+        "count": 34,
+        "pct": 0.01
+      },
+      "weather_conditions": {
+        "count": 12,
+        "pct": 0.0
+      },
+      "urban_or_rural_area": {
+        "count": 8,
+        "pct": 0.0
+      },
+      "first_road_class": {
+        "count": 6,
+        "pct": 0.0
+      },
+      "first_road_number": {
+        "count": 6,
+        "pct": 0.0
+      },
+      "speed_limit": {
+        "count": 3,
+        "pct": 0.0
+      }
+    },
+    "coordinates": {
+      "missing": 53,
+      "outside_gb_bbox": 0
+    },
+    "highway_authority": {
+      "missing": 53,
+      "rows_where_highway_differs_from_current": 7615,
+      "distinct_highway_by_year": {
+        "2021": 206,
+        "2022": 207,
+        "2023": 208,
+        "2024": 208,
+        "2025": 208
+      },
+      "distinct_current_by_year": {
+        "2021": 206,
+        "2022": 207,
+        "2023": 207,
+        "2024": 207,
+        "2025": 207
+      },
+      "distinct_current_all_years": 207
+    },
+    "first_road_class": {
+      "-1": 6,
+      "1": 15452,
+      "2": 1239,
+      "3": 225830,
+      "4": 64452,
+      "5": 22612,
+      "6": 184210
+    },
+    "london": {
+      "definition": "local_authority_highway starts with E09",
+      "collisions_by_year": {
+        "2021": 23127,
+        "2022": 23477,
+        "2023": 22895,
+        "2024": 20967,
+        "2025": 20869
+      },
+      "collisions_total": 111335,
+      "collisions_by_year_using_current_code": {
+        "2021": 23138,
+        "2022": 23502,
+        "2023": 22914,
+        "2024": 21000,
+        "2025": 20901
+      },
+      "severity_by_year": {
+        "2021": {
+          "fatal": 73,
+          "serious": 3407,
+          "slight": 19647
+        },
+        "2022": {
+          "fatal": 101,
+          "serious": 3722,
+          "slight": 19654
+        },
+        "2023": {
+          "fatal": 101,
+          "serious": 3497,
+          "slight": 19297
+        },
+        "2024": {
+          "fatal": 108,
+          "serious": 3493,
+          "slight": 17366
+        },
+        "2025": {
+          "fatal": 93,
+          "serious": 3757,
+          "slight": 17019
+        }
+      },
+      "distinct_authorities_current": 33
+    }
+  },
+  "traffic_aadf": {
+    "rows_total": 600551,
+    "rows_in_scope": 111465,
+    "rows_by_year_all": {
+      "2000": 20009,
+      "2001": 20024,
+      "2002": 20096,
+      "2003": 21990,
+      "2004": 22046,
+      "2005": 22120,
+      "2006": 22224,
+      "2007": 22003,
+      "2008": 27992,
+      "2009": 26690,
+      "2010": 22257,
+      "2011": 22435,
+      "2012": 22539,
+      "2013": 22707,
+      "2014": 22745,
+      "2015": 22754,
+      "2016": 22786,
+      "2017": 22850,
+      "2018": 27543,
+      "2019": 32903,
+      "2020": 22373,
+      "2021": 22297,
+      "2022": 22240,
+      "2023": 22257,
+      "2024": 22337,
+      "2025": 22334
+    },
+    "year_range_all": [
+      "2000",
+      "2025"
+    ],
+    "count_points_all_years": 46754,
+    "key": {
+      "columns": [
+        "count_point_id",
+        "year"
+      ],
+      "duplicates": 0,
+      "unique": 600551
+    },
+    "estimation_method_by_year": {
+      "2021": {
+        "Counted": 8324,
+        "Estimated": 13973
+      },
+      "2022": {
+        "Counted": 8059,
+        "Estimated": 14181
+      },
+      "2023": {
+        "Counted": 7555,
+        "Estimated": 14702
+      },
+      "2024": {
+        "Counted": 7815,
+        "Estimated": 14522
+      },
+      "2025": {
+        "Counted": 7950,
+        "Estimated": 14384
+      }
+    },
+    "estimated_share_pct": 64.38,
+    "estimated_share_by_year_pct": {
+      "2021": 62.67,
+      "2022": 63.76,
+      "2023": 66.06,
+      "2024": 65.01,
+      "2025": 64.4
+    },
+    "estimation_method_detailed": {
+      "Estimated using AADF from previous year on this link": 66686,
+      "Manual count": 32991,
+      "Estimated from nearby links": 5076,
+      "Automatic counter": 4860,
+      "Dependent on a neighbouring counted link": 1479,
+      "Dependent on an automatic counter on a neighbouring link": 373
+    },
+    "road_type": {
+      "Major": 89476,
+      "Minor": 21989
+    },
+    "road_category": {
+      "MB": 2716,
+      "MCU": 19273,
+      "PA": 72198,
+      "PM": 178,
+      "TA": 10961,
+      "TM": 6139
+    },
+    "link_length_missing_or_nonpositive": {
+      "total": 21989,
+      "pct": 19.73,
+      "all_years_total": 134684,
+      "all_years_pct": 22.43,
+      "by_year_and_road_type": {
+        "2021": {
+          "Major": {
+            "missing": 0,
+            "rows": 17895,
+            "pct": 0.0
+          },
+          "Minor": {
+            "missing": 4402,
+            "rows": 4402,
+            "pct": 100.0
+          }
+        },
+        "2022": {
+          "Major": {
+            "missing": 0,
+            "rows": 17840,
+            "pct": 0.0
+          },
+          "Minor": {
+            "missing": 4400,
+            "rows": 4400,
+            "pct": 100.0
+          }
+        },
+        "2023": {
+          "Major": {
+            "missing": 0,
+            "rows": 17860,
+            "pct": 0.0
+          },
+          "Minor": {
+            "missing": 4397,
+            "rows": 4397,
+            "pct": 100.0
+          }
+        },
+        "2024": {
+          "Major": {
+            "missing": 0,
+            "rows": 17940,
+            "pct": 0.0
+          },
+          "Minor": {
+            "missing": 4397,
+            "rows": 4397,
+            "pct": 100.0
+          }
+        },
+        "2025": {
+          "Major": {
+            "missing": 0,
+            "rows": 17941,
+            "pct": 0.0
+          },
+          "Minor": {
+            "missing": 4393,
+            "rows": 4393,
+            "pct": 100.0
+          }
+        }
+      }
+    },
+    "measures": {
+      "missing": {},
+      "negative": {},
+      "all_motor_vehicles_zero": 19,
+      "rows_where_parts_do_not_sum_to_all_motor_vehicles": 49297,
+      "all_motor_vehicles_minus_parts": {
+        "-2": 857,
+        "-1": 24227,
+        "1": 23419,
+        "2": 794
+      },
+      "rows_where_hgv_parts_do_not_sum_to_all_HGVs": 48595
+    },
+    "count_points_by_year": {
+      "2021": 22297,
+      "2022": 22240,
+      "2023": 22257,
+      "2024": 22337,
+      "2025": 22334
+    },
+    "count_points_present_every_scope_year": 21201,
+    "count_points_with_more_than_one_authority_code": 267,
+    "distinct_authorities_by_year": {
+      "2021": 207,
+      "2022": 206,
+      "2023": 208,
+      "2024": 207,
+      "2025": 207
+    },
+    "london": {
+      "definition": "local_authority_code starts with E09",
+      "rows_by_year": {
+        "2021": 2038,
+        "2022": 2037,
+        "2023": 2039,
+        "2024": 2043,
+        "2025": 2050
+      },
+      "rows_total": 10207,
+      "estimated_share_pct": 64.54,
+      "estimated_share_by_year_pct": {
+        "2021": 64.18,
+        "2022": 65.19,
+        "2023": 64.1,
+        "2024": 65.3,
+        "2025": 63.95
+      },
+      "link_length_missing_pct": 10.53,
+      "count_points_by_year": {
+        "2021": 2038,
+        "2022": 2037,
+        "2023": 2039,
+        "2024": 2043,
+        "2025": 2050
+      },
+      "count_points_present_every_scope_year": 1977,
+      "rows_where_E09_and_region_name_disagree": 0
+    }
+  },
+  "traffic_count_points": {
+    "rows_total": 46754,
+    "key": {
+      "column": "count_point_id",
+      "duplicates": 0,
+      "unique": 46754
+    },
+    "metadata_year": {
+      "2000": 103,
+      "2001": 38,
+      "2002": 52,
+      "2003": 75,
+      "2004": 173,
+      "2005": 106,
+      "2006": 55,
+      "2007": 66,
+      "2008": 3137,
+      "2009": 6516,
+      "2010": 214,
+      "2011": 83,
+      "2012": 68,
+      "2013": 62,
+      "2014": 82,
+      "2015": 75,
+      "2016": 304,
+      "2017": 479,
+      "2018": 301,
+      "2019": 10951,
+      "2020": 339,
+      "2021": 346,
+      "2022": 143,
+      "2023": 146,
+      "2024": 506,
+      "2025": 22334
+    },
+    "road_type": {
+      "Major": 21969,
+      "Minor": 24785
+    },
+    "link_length_missing_or_nonpositive": {
+      "count": 24785,
+      "pct": 53.01
+    },
+    "coordinates_missing": 0,
+    "london_points": 3665
+  },
+  "traffic_local_authority": {
+    "rows_total": 6767,
+    "key": {
+      "columns": [
+        "local_authority_code",
+        "year"
+      ],
+      "duplicates": 0
+    },
+    "year_range_all": [
+      "1993",
+      "2025"
+    ],
+    "rows_by_year_in_scope": {
+      "2021": 206,
+      "2022": 206,
+      "2023": 207,
+      "2024": 207,
+      "2025": 207
+    },
+    "missing_in_scope": {},
+    "rows_with_scientific_notation": 1318,
+    "unit_note": "all_motor_vehicles và cars_and_taxis là vehicle miles/năm theo tên cột nguồn; cần đối chiếu metadata DfT",
+    "london_authorities_by_year": {
+      "2021": 33,
+      "2022": 33,
+      "2023": 33,
+      "2024": 33,
+      "2025": 33
+    }
+  },
+  "cross_source": {
+    "common_years": [
+      "2021",
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+    ],
+    "authority_codes_by_year": {
+      "2021": {
+        "stats19": 206,
+        "aadf": 207,
+        "la_traffic": 206,
+        "stats19_not_in_aadf": [
+          "E06000063",
+          "E06000064",
+          "E08000038",
+          "E08000039"
+        ],
+        "aadf_not_in_stats19": [
+          "E06000053",
+          "E08000016",
+          "E08000019",
+          "E10000006",
+          "E10000021"
+        ],
+        "stats19_not_in_la_traffic": [
+          "E06000063",
+          "E06000064",
+          "E08000038",
+          "E08000039"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E06000053",
+          "E08000016",
+          "E08000019",
+          "E10000006"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2022": {
+        "stats19": 207,
+        "aadf": 206,
+        "la_traffic": 206,
+        "stats19_not_in_aadf": [
+          "E06000063",
+          "E06000064",
+          "E08000038",
+          "E08000039"
+        ],
+        "aadf_not_in_stats19": [
+          "E08000016",
+          "E08000019",
+          "E10000006"
+        ],
+        "stats19_not_in_la_traffic": [
+          "E06000063",
+          "E06000064",
+          "E08000038",
+          "E08000039"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E08000016",
+          "E08000019",
+          "E10000006"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2023": {
+        "stats19": 207,
+        "aadf": 208,
+        "la_traffic": 207,
+        "stats19_not_in_aadf": [
+          "E08000038",
+          "E08000039"
+        ],
+        "aadf_not_in_stats19": [
+          "E08000016",
+          "E08000019",
+          "E10000006"
+        ],
+        "stats19_not_in_la_traffic": [
+          "E08000038",
+          "E08000039"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2024": {
+        "stats19": 207,
+        "aadf": 207,
+        "la_traffic": 207,
+        "stats19_not_in_aadf": [
+          "E08000038",
+          "E08000039"
+        ],
+        "aadf_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "stats19_not_in_la_traffic": [
+          "E08000038",
+          "E08000039"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2025": {
+        "stats19": 207,
+        "aadf": 207,
+        "la_traffic": 207,
+        "stats19_not_in_aadf": [
+          "E08000038",
+          "E08000039"
+        ],
+        "aadf_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "stats19_not_in_la_traffic": [
+          "E08000038",
+          "E08000039"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      }
+    },
+    "authority_codes_by_year_at_event": {
+      "2021": {
+        "stats19": 206,
+        "aadf": 207,
+        "la_traffic": 206,
+        "stats19_not_in_aadf": [
+          "EHEATHROW"
+        ],
+        "aadf_not_in_stats19": [
+          "E06000053",
+          "E10000021"
+        ],
+        "stats19_not_in_la_traffic": [
+          "EHEATHROW"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E06000053"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2022": {
+        "stats19": 207,
+        "aadf": 206,
+        "la_traffic": 206,
+        "stats19_not_in_aadf": [
+          "EHEATHROW"
+        ],
+        "aadf_not_in_stats19": [],
+        "stats19_not_in_la_traffic": [
+          "EHEATHROW"
+        ],
+        "la_traffic_not_in_stats19": [],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2023": {
+        "stats19": 208,
+        "aadf": 208,
+        "la_traffic": 207,
+        "stats19_not_in_aadf": [
+          "EHEATHROW"
+        ],
+        "aadf_not_in_stats19": [
+          "E10000006"
+        ],
+        "stats19_not_in_la_traffic": [
+          "EHEATHROW"
+        ],
+        "la_traffic_not_in_stats19": [],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2024": {
+        "stats19": 208,
+        "aadf": 207,
+        "la_traffic": 207,
+        "stats19_not_in_aadf": [
+          "EHEATHROW"
+        ],
+        "aadf_not_in_stats19": [],
+        "stats19_not_in_la_traffic": [
+          "EHEATHROW"
+        ],
+        "la_traffic_not_in_stats19": [],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      },
+      "2025": {
+        "stats19": 208,
+        "aadf": 207,
+        "la_traffic": 207,
+        "stats19_not_in_aadf": [
+          "E08000038",
+          "E08000039",
+          "EHEATHROW"
+        ],
+        "aadf_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "stats19_not_in_la_traffic": [
+          "E08000038",
+          "E08000039",
+          "EHEATHROW"
+        ],
+        "la_traffic_not_in_stats19": [
+          "E08000016",
+          "E08000019"
+        ],
+        "london": {
+          "stats19": 33,
+          "aadf": 33,
+          "la_traffic": 33,
+          "matched_all_three": 33,
+          "expected": 33
+        }
+      }
+    },
+    "aadf_points_missing_from_count_points": 0,
+    "count_points_without_aadf": 0
+  },
+  "release_status": {
+    "stats19": "Không xác định được từ file: data guide không ghi provisional/final. README ghi bản 'last 5 years' chính thức cho 2025; cần đối chiếu trang DfT.",
+    "traffic": "Không xác định được từ file; member trong zip ghi ngày 2026-06-02. Cần đối chiếu trang roadtraffic.dft.gov.uk."
+  }
+}
