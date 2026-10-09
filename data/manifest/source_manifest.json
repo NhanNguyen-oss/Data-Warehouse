@@ -1,0 +1,130 @@
+{
+  "generated_at_utc": "2026-10-09T17:05:10+00:00",
+  "generator": "src/etl/sources.py manifest",
+  "sources": [
+    {
+      "source_id": "stats19_collision",
+      "path": "data/raw/dft-road-casualty-statistics-collision-last-5-years.csv",
+      "role": "STATS19 collision events, một dòng = một vụ",
+      "publisher_page": "https://www.gov.uk/government/statistical-data-sets/road-safety-open-data",
+      "download_url": null,
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 97669586,
+      "sha256": "06a03c0e5504175e23ed98e3e0b4767ac61d396c073405a1bddab9339c18f948",
+      "members": [
+        {
+          "name": "dft-road-casualty-statistics-collision-last-5-years.csv",
+          "rows": 513801,
+          "columns": 44
+        }
+      ]
+    },
+    {
+      "source_id": "stats19_vehicle",
+      "path": "data/raw/dft-road-casualty-statistics-vehicle-last-5-years.csv",
+      "role": "STATS19 vehicles, một dòng = một xe trong một vụ",
+      "publisher_page": "https://www.gov.uk/government/statistical-data-sets/road-safety-open-data",
+      "download_url": null,
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 103741631,
+      "sha256": "05453dca2651ad8a27b4ac0e6a0450a852c506e4d495111ffca398f3d311e26a",
+      "members": [
+        {
+          "name": "dft-road-casualty-statistics-vehicle-last-5-years.csv",
+          "rows": 937265,
+          "columns": 32
+        }
+      ]
+    },
+    {
+      "source_id": "stats19_casualty",
+      "path": "data/raw/dft-road-casualty-statistics-casualty-last-5-years.csv",
+      "role": "STATS19 casualties, một dòng = một nạn nhân",
+      "publisher_page": "https://www.gov.uk/government/statistical-data-sets/road-safety-open-data",
+      "download_url": null,
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 53685509,
+      "sha256": "870be5a934ae10baf5c52163d59eccba0ab2f40327ffa6b2bd354d2e7ee6b108",
+      "members": [
+        {
+          "name": "dft-road-casualty-statistics-casualty-last-5-years.csv",
+          "rows": 652821,
+          "columns": 24
+        }
+      ]
+    },
+    {
+      "source_id": "stats19_data_guide",
+      "path": "data/raw/dft-road-casualty-statistics-road-safety-open-dataset-data-guide-2025.xlsx",
+      "role": "Codebook STATS19 (mã -> nhãn)",
+      "publisher_page": "https://www.gov.uk/government/statistical-data-sets/road-safety-open-data",
+      "download_url": null,
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 85112,
+      "sha256": "51b08606ef3dad1ae5d4c8726241b022fc8e4bbdc910ef0e5cc2fb92b054fc12",
+      "members": []
+    },
+    {
+      "source_id": "traffic_aadf",
+      "path": "data/raw/traffic/dft_traffic_counts_aadf.zip",
+      "role": "AADF theo count point x year",
+      "publisher_page": "https://roadtraffic.dft.gov.uk/downloads",
+      "download_url": "https://storage.googleapis.com/dft-statistics/road-traffic/downloads/data-gov-uk/dft_traffic_counts_aadf.zip",
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 19464638,
+      "sha256": "5273cf63da4ca8b317bfe972d8a345e7932db0fff7a7789998a890f0081232b6",
+      "members": [
+        {
+          "name": "dft_traffic_counts_aadf.csv",
+          "uncompressed_bytes": 149902213,
+          "archive_timestamp": "2026-06-02T11:11:36",
+          "rows": 600551,
+          "columns": 34
+        }
+      ]
+    },
+    {
+      "source_id": "traffic_count_points",
+      "path": "data/raw/traffic/count_points.zip",
+      "role": "Metadata count points",
+      "publisher_page": "https://roadtraffic.dft.gov.uk/downloads",
+      "download_url": "https://storage.googleapis.com/dft-statistics/road-traffic/downloads/data-gov-uk/count_points.zip",
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 1648553,
+      "sha256": "4772abb13761694f35c7aba6d83915c5c168e94a0d25ae401e4b7e84ef7fcff2",
+      "members": [
+        {
+          "name": "count_points.csv",
+          "uncompressed_bytes": 6973989,
+          "archive_timestamp": "2026-06-02T11:11:36",
+          "rows": 46754,
+          "columns": 19
+        }
+      ]
+    },
+    {
+      "source_id": "traffic_local_authority",
+      "path": "data/raw/traffic/local_authority_traffic.csv",
+      "role": "Vehicle miles ước tính theo local authority x year (toàn mạng đường)",
+      "publisher_page": "https://roadtraffic.dft.gov.uk/downloads",
+      "download_url": "https://storage.googleapis.com/dft-statistics/road-traffic/downloads/data-gov-uk/local_authority_traffic.csv",
+      "licence": "Open Government Licence v3.0",
+      "present": true,
+      "bytes": 433725,
+      "sha256": "058a61b9f6f7d07a9363c339829c6723fdecc4270f500611d1790eae6da7b9fc",
+      "members": [
+        {
+          "name": "local_authority_traffic.csv",
+          "rows": 6767,
+          "columns": 8
+        }
+      ]
+    }
+  ]
+}
