@@ -2,9 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.3.2
+- Phiên bản: 0.3.3
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0: đã có thông tin máy Windows, chọn Windows host + Docker Desktop (D12); container `healthy` trên máy người dùng; chờ chạy lại `check_db.ps1` bản sửa để xác nhận 14 bảng/view. S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
+- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -286,11 +286,12 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | Ưu tiên | Việc tiếp theo | Trạng thái |
 |---|---|---|
 | P0 | Kiểm tra Windows version, tài nguyên, WSL2/Docker và công cụ đã có | Done 2026-10-10 — kết quả ở phiên 0.3.1 |
-| P0 | Container health check trên máy Windows | Done một phần 2026-10-10 — container `healthy` trên máy người dùng; bước đếm bảng lỗi do PowerShell 5.1 làm mất dấu nháy (đã sửa). Chờ chạy lại để xác nhận 14 bảng/view trong `dw` |
+| P0 | Container health check trên máy Windows | Done 2026-10-10 — `check_db.ps1` trên máy người dùng: healthy, PostgreSQL 16.4, PostGIS 3.4.3, `dw` 14 bảng/view |
 | P0 | Chốt phạm vi MVP London và năm sau kiểm tra metadata | Pending — chờ profiling và người dùng |
 | P0 | Chốt bài toán: README hay hướng B (D08) | Pending — cần người dùng |
 | P0 | Lấy đúng ba datasets, inventory và source manifest | Done 2026-10-10 — `data/manifest/source_manifest.json` |
-| P1 | Tạo repository và môi trường tái lập | Done một phần — skeleton có; Docker chưa chạy thử |
+| P1 | Tạo repository và môi trường tái lập | Done 2026-10-10 — skeleton, manifest, Docker Compose chạy trên máy người dùng |
+| P1 | Nạp STATS19 vào container: `python src/etl/pipeline.py --load` từ `.venv` Python 3.13, đối chiếu số dòng `dw.*` với README | Pending — chưa chạy trên máy người dùng |
 | P1 | Viết/run profiling | Done 2026-10-10 — `src/etl/profiling.py`, `reports/profiling/` |
 | P1 | Authority–year PoC kèm mapping contract | Done 2026-10-10 — `src/etl/authority_year.py`, `reports/poc/` |
 | P2 | Thiết kế DW S4: `fact_traffic_aadf`, `dim_count_point`, `dim_authority` (SCD2 cho Cumbria), `mart_authority_year`; ERD, dictionary, mapping nguồn–đích | Pending — gate đạt về dữ liệu; chờ người dùng chốt phạm vi và D08 |
@@ -316,11 +317,11 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | VS Code | 1.118.1 | Đủ |
 | WSL | default `docker-desktop`, version 2 | Chưa có distro Linux riêng; không cần cho phương án D12 |
 
-Lần chạy `scripts\check_db.ps1` đầu tiên trên máy người dùng: `db health healthy`, nhưng ba truy vấn psql không trả gì và script dừng ở `$tables.Trim()` (null). Nguyên nhân: Windows PowerShell 5.1 bỏ dấu nháy kép lồng trong đối số truyền cho chương trình ngoài, nên lệnh `sh -c '... "$POSTGRES_USER" ... "select ..."'` tới psql bị vỡ. Bản sửa truyền SQL qua stdin, dùng `ON_ERROR_STOP` và báo lỗi rõ khi truy vấn không có kết quả. Đã chạy bản sửa end-to-end trên máy agent (Docker 29.1.3, PowerShell 7.4.6): `healthy`, PostgreSQL 16.4, PostGIS 3.4.3, 14 bảng/view trong `dw`. Chưa chạy lại trên Windows PowerShell 5.1.
+Lần chạy `scripts\check_db.ps1` đầu tiên trên máy người dùng: `db health healthy`, nhưng ba truy vấn psql không trả gì và script dừng ở `$tables.Trim()` (null). Nguyên nhân: Windows PowerShell 5.1 bỏ dấu nháy kép lồng trong đối số truyền cho chương trình ngoài, nên lệnh `sh -c '... "$POSTGRES_USER" ... "select ..."'` tới psql bị vỡ. Bản sửa truyền SQL qua stdin, dùng `ON_ERROR_STOP` và báo lỗi rõ khi truy vấn không có kết quả. Đã chạy bản sửa end-to-end trên máy agent (Docker 29.1.3, PowerShell 7.4.6): `healthy`, PostgreSQL 16.4, PostGIS 3.4.3, 14 bảng/view trong `dw`. Chạy lại trên máy người dùng (Windows PowerShell, sau khi merge PR #5): `db health healthy`, `PostgreSQL 16.4 (Debian 16.4-1.pgdg110+2)`, `postgis 3.4.3`, `dw tables 14`. S0 đạt điều kiện hoàn thành của mục 9 (lệnh version và container health check thành công).
 
 Quyết định D12: chạy Windows host + Docker Desktop (WSL2 backend) cho PostgreSQL/PostGIS; ETL và test chạy bằng Python 3.13 trong `.venv` trên Windows (mã chỉ dùng thư viện chuẩn và `pathlib`, không phụ thuộc hệ điều hành). Không cần cài distro Ubuntu trong WSL. Thêm `scripts/check_db.ps1` để hoàn tất S0.
 
-Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) nhận kết quả `scripts\check_db.ps1` từ máy Windows; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
+Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) chạy thử `pipeline.py --load` vào container trên máy người dùng; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
 
 Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
 
@@ -339,7 +340,7 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | D09 | 2026-10-10 | Mỗi tính năng một branch `cursor/*-b2a4` và một PR vào `main`; các PR xếp chồng, merge theo thứ tự | Người dùng yêu cầu |
 | D10 | 2026-10-10 | Mã authority chuẩn = mã DfT Traffic trong năm; collision dùng mã lúc xảy ra vụ + bảng ánh xạ; AADF dùng `count_point_later_code` | Áp dụng trong PoC; đối soát 0 dòng không ghép được |
 | D11 | 2026-10-10 | Không dùng cờ `collision_injury_based` làm chỉ báo; dùng số hiệu chỉnh | Bằng chứng: Met Police 2021–2024 |
-| D12 | 2026-10-10 | Windows host + Docker Desktop (WSL2 backend); Python 3.13 venv qua `py`; psql trong container | Dựa trên kết quả `check_env.ps1`; chờ `check_db.ps1` xác nhận |
+| D12 | 2026-10-10 | Windows host + Docker Desktop (WSL2 backend); Python 3.13 venv qua `py`; psql trong container | Áp dụng; `check_db.ps1` xác nhận trên máy người dùng 2026-10-10. Không cần cài PostgreSQL native |
 
 ## 14. Changelog
 
@@ -351,5 +352,6 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.3.0 | 2026-10-10 | Authority–year PoC (S3 A+B); mapping contract (D10); gate trước thiết kế vật lý đạt về dữ liệu, còn chờ chốt phạm vi; cờ injury-based không đáng tin (D11) | `reports/poc/RECONCILIATION.md`; 16 unittest |
 | 0.3.1 | 2026-10-10 | Ghi cấu hình máy Windows; chọn môi trường D12; sửa `check_env.ps1` (hypervisor, docker engine); thêm `check_db.ps1` | Output `check_env.ps1` do người dùng gửi; `check_db.ps1` chưa chạy |
 | 0.3.2 | 2026-10-10 | Container `healthy` trên máy người dùng; sửa lỗi quoting PowerShell 5.1 trong `check_db.ps1` | Output người dùng gửi; chạy end-to-end trên máy agent: healthy, PG 16.4, PostGIS 3.4.3, 14 bảng/view |
+| 0.3.3 | 2026-10-10 | S0 hoàn thành trên máy người dùng | Output `check_db.ps1` người dùng gửi: healthy, PG 16.4, PostGIS 3.4.3, `dw tables 14` |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.
