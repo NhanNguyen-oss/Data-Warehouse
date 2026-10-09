@@ -5,5 +5,9 @@ venv/
 .env
 *.egg-info/
 data/processed/*.csv
+data/staging/*
+!data/staging/.gitkeep
+data/raw/traffic/
+*.part
 .DS_Store
 Thumbs.db
