@@ -27,7 +27,14 @@ if ($status -ne "healthy") {
     throw "db container did not become healthy."
 }
 
-docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select version()"'
-docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select postgis_full_version()"'
-$tables = docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select count(*) from information_schema.tables where table_schema = ''dw''"'
-"{0,-16} {1}" -f "dw tables", $tables.Trim()
+# SQL goes through stdin: Windows PowerShell 5.1 strips embedded double quotes from
+# native-command arguments, so quoted SQL inside `sh -c` reaches psql broken.
+function Invoke-Sql($label, $sql) {
+    $result = $sql | docker compose exec -T db sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB -v ON_ERROR_STOP=1 -tA'
+    if ($LASTEXITCODE -ne 0 -or -not $result) { throw "Query for '$label' failed: $sql" }
+    "{0,-16} {1}" -f $label, (($result | Select-Object -First 1) -as [string]).Trim()
+}
+
+Invoke-Sql "postgres" "select version();"
+Invoke-Sql "postgis" "select postgis_lib_version();"
+Invoke-Sql "dw tables" "select count(*) from information_schema.tables where table_schema = 'dw';"
