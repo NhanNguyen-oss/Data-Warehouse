@@ -120,11 +120,13 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
 │   ├── staging/           # dữ liệu trung gian (không commit)
 │   └── processed/         # CSV do ETL sinh ra, mỗi bảng dw.* một file (không commit)
 ├── docs/                  # báo cáo PDF và slide PDF
+├── reports/profiling/     # PROFILE.md và profile.json do profiling.py sinh ra
 ├── scripts/check_env.ps1  # kiểm tra môi trường Windows (stage S0)
 ├── tests/                 # unittest, chạy bằng python -m unittest discover -s tests
 └── src/
     ├── database/schema.sql    # DDL kho dữ liệu, view và truy vấn OLAP mẫu
     ├── etl/sources.py         # danh mục nguồn, tải, manifest có checksum
+    ├── etl/profiling.py       # profiling nguồn (S2), ghi reports/profiling/
     ├── etl/pipeline.py        # Extract, Transform, Load
     ├── frontend/app.py        # dashboard Streamlit
     └── dss/model.py           # mô hình hỗ trợ quyết định
@@ -152,6 +154,7 @@ Nguồn DfT Traffic Counts không commit vào Git. Tải về `data/raw/traffic/
 ```bash
 python src/etl/sources.py fetch      # tải file còn thiếu, không ghi đè file đã có
 python src/etl/sources.py verify     # so sha256 với data/manifest/source_manifest.json
+python src/etl/profiling.py          # profiling S2 -> reports/profiling/PROFILE.md (khoảng 15 giây)
 python -m unittest discover -s tests
 ```
 

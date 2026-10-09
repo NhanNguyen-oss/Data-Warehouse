@@ -2,9 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.2.0
+- Phiên bản: 0.2.1
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S0 một phần — có repository, project skeleton, source manifest; chưa kiểm tra máy Windows của người dùng.
+- Trạng thái: S2 xong (profiling tái lập, `reports/profiling/PROFILE.md`); S0 một phần — chưa kiểm tra máy Windows của người dùng.
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -91,6 +91,8 @@ Mỗi KPI phải có grain, công thức, đơn vị, nguồn, bộ lọc, quy t
 
 Trong MVP authority–year, trình bày hai nhóm chỉ số cạnh nhau. Không tính rate bằng tất cả tai nạn địa bàn chia cho exposure chỉ của một phần mạng đường.
 
+Ràng buộc bổ sung từ profiling (v0.2.1): Vehicle-km từ AADF chỉ khả thi cho Major roads (Minor thiếu `link_length_km` 100%). Severe collision share cần cờ injury-based hoặc số hiệu chỉnh `collision_adjusted_severity_*` khi so sánh giữa các năm. AADF growth phải so trên tập count point có mặt ở cả hai năm (21.201 điểm có mặt cả 5 năm toàn quốc, 1.977 ở London).
+
 ## 6. Nguồn dữ liệu và evidence ledger
 
 ### 6.1 Dữ liệu đã được nhắc đến trong hội thoại
@@ -129,7 +131,26 @@ Các file DfT trên Google Cloud Storage có thể được thay bằng bản ph
 
 Assistant trước đã báo cáo: 513.801 collisions; 600.551 AADF rows; 46.754 count points; London 111.335 collisions và 10.207 AADF rows; 33/33 authority codes khớp; 64,5% estimated AADF; 22,43% thiếu link length toàn quốc.
 
-**Cập nhật 2026-10-10:** số bản ghi 513.801 collisions, 600.551 AADF rows và 46.754 count points khớp với manifest (đếm bằng CSV parser trên file có sha256 ở mục 6.1b). Các con số còn lại (London, authority codes, estimated, link length) vẫn chưa tái lập, chờ profiling S2.
+**Cập nhật 2026-10-10 (v0.2.1):** đã tái lập bằng `python src/etl/profiling.py` trên các file có sha256 ở mục 6.1b. Kết quả đầy đủ trong `reports/profiling/profile.json` và `PROFILE.md`.
+
+| Con số cũ | Kết quả tái lập | Ghi chú |
+|---|---|---|
+| 513.801 collisions | Khớp | `collision_index` duy nhất, 0 trùng; 2021–2025 |
+| 600.551 AADF rows | Khớp | Năm 2000–2025; khóa (`count_point_id`, `year`) 0 trùng |
+| 46.754 count points | Khớp | 0 trùng; mọi count point AADF đều có metadata |
+| London 111.335 collisions | Khớp | Định nghĩa: `local_authority_highway` bắt đầu bằng `E09`, 2021–2025 |
+| London 10.207 AADF rows | Khớp | `local_authority_code` bắt đầu bằng `E09`, 2021–2025; trùng khớp `region_name = London` |
+| 33/33 authority codes khớp | Khớp | Cả ba nguồn, mọi năm 2021–2025 |
+| 64,5% estimated AADF | Khớp cho London (64,54%) | Toàn quốc 2021–2025 là 64,38% |
+| 22,43% thiếu link length toàn quốc | Khớp cho toàn file 2000–2025 | 2021–2025 là 19,73%; **Minor roads thiếu 100%**, Major 0% |
+
+Phát hiện mới có ảnh hưởng thiết kế:
+- AADF chỉ có `link_length_km` cho Major roads, nên vehicle-km tính từ AADF chỉ phủ mạng Major. Rate theo toàn bộ tai nạn địa bàn phải dùng `local_authority_traffic.csv` (D07) hoặc lọc tai nạn theo road class tương ứng.
+- 49.297 dòng AADF có tổng nhóm phương tiện lệch `all_motor_vehicles` ±1 hoặc ±2 (làm tròn). ETL phải dùng `all_motor_vehicles` của nguồn, không cộng nhóm.
+- `local_authority_traffic.csv` có 1.318 dòng ghi số dạng khoa học (`1.245e+09`); phải parse bằng float.
+- Mã authority: so với AADF và LA traffic, `local_authority_highway` (mã lúc xảy ra vụ) khớp tốt hơn `_current`. Lệch còn lại: `EHEATHROW`; Sheffield/Barnsley mã mới `E08000039`/`E08000038` trong STATS19 2025 so với mã cũ `E08000019`/`E08000016` bên Traffic; Cumbria `E10000006` còn trong AADF 2023; `E10000021` (Northamptonshire) trong AADF 2021. Cần mapping contract ở S3.
+- Tỷ lệ vụ ghi theo injury-based tăng từ 49,62% (2021) lên 86,53% (2025), nên severe collision share không so sánh được giữa các năm nếu không hiệu chỉnh.
+- Trạng thái provisional/final không ghi trong file nào; còn phải đối chiếu trang DfT.
 
 **Trạng thái bằng chứng ban đầu: chưa tái lập.** Hội thoại hiện tại không cung cấp script, log hoặc output gốc xác minh các con số này. Không đưa vào báo cáo như kết quả đã chứng minh. Cần chạy lại profiling và ghi file nguồn, hash, thời gian chạy, filters, kết quả. Đặc biệt kiểm tra năm 2025, định nghĩa collision identifier và bản phát hành provisional/final từ metadata.
 
@@ -241,6 +262,8 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 - Thêm `compose.yaml` (PostGIS 16-3.4, healthcheck, init bằng `schema.sql`), `.env.example`, `requirements.txt`, `scripts/check_env.ps1`, `data/staging/`, `tests/`.
 - Bằng chứng: `python -m unittest discover -s tests` qua 5 test. `schema.sql` chạy không lỗi trên PostgreSQL 16 (cài bằng apt trên máy agent). **Chưa kiểm chứng:** `docker compose up` (máy agent không có Docker) và `check_env.ps1` (cần Windows).
 
+**Phiên 0.2.1:** thêm `src/etl/profiling.py` (stage S2). Chạy trên 4 nguồn trong 13,6 giây, ghi `reports/profiling/profile.json` và `PROFILE.md` kèm run_id, sha256 và bộ lọc năm. Kết quả và phát hiện ở mục 6.2. Bằng chứng: 10 unittest qua (thêm 5 test profiling dùng dữ liệu tự tạo).
+
 | Ưu tiên | Việc tiếp theo | Trạng thái |
 |---|---|---|
 | P0 | Kiểm tra Windows version, tài nguyên, WSL2/Docker và công cụ đã có | Pending — người dùng chạy `scripts/check_env.ps1` và dán kết quả |
@@ -248,7 +271,9 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | P0 | Chốt bài toán: README hay hướng B (D08) | Pending — cần người dùng |
 | P0 | Lấy đúng ba datasets, inventory và source manifest | Done 2026-10-10 — `data/manifest/source_manifest.json` |
 | P1 | Tạo repository và môi trường tái lập | Done một phần — skeleton có; Docker chưa chạy thử |
-| P1 | Viết/run profiling và authority–year PoC | Pending |
+| P1 | Viết/run profiling | Done 2026-10-10 — `src/etl/profiling.py`, `reports/profiling/` |
+| P1 | Authority–year PoC kèm mapping contract | Pending |
+| P1 | Đối chiếu trạng thái provisional/final trên trang DfT | Pending |
 | P2 | Chốt KPI contract và grain, rồi thiết kế DW | Blocked bởi profiling/PoC |
 | P3 | Spatial PoC / link-level rate | Optional; cần geometry và mapping |
 
@@ -274,5 +299,6 @@ Agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và
 |---|---|---|---|
 | 0.1.0 | 2026-10-09 | Tạo kế hoạch tổng hợp; Windows roadmap; integration gates; KPI/DSS guardrails; next actions | Hội thoại người dùng; chưa kiểm chứng lại datasets |
 | 0.2.0 | 2026-10-10 | Đưa kế hoạch vào repo; skeleton S0; source manifest có sha256; ánh xạ cây thư mục (D06); thêm nguồn local authority traffic (D07); ghi mâu thuẫn bài toán (D08) | `data/manifest/source_manifest.json`; 5 unittest; `schema.sql` chạy trên PostgreSQL 16 |
+| 0.2.1 | 2026-10-10 | Profiling S2 tái lập; xác nhận 8 con số cũ; ghi phát hiện link length Minor, làm tròn nhóm phương tiện, số dạng khoa học, lệch mã authority | `reports/profiling/PROFILE.md`; 10 unittest |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.
