@@ -124,6 +124,7 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
 ├── reports/profiling/     # PROFILE.md và profile.json do profiling.py sinh ra
 ├── reports/poc/           # authority_year.csv, remap_audit.csv, RECONCILIATION.md do authority_year.py sinh ra
 ├── scripts/check_env.ps1  # kiểm tra môi trường Windows (stage S0)
+├── scripts/check_db.ps1   # dựng container db và kiểm tra health (stage S0)
 ├── tests/                 # unittest, chạy bằng python -m unittest discover -s tests
 └── src/
     ├── database/schema.sql    # DDL kho dữ liệu, view và truy vấn OLAP mẫu
@@ -150,6 +151,16 @@ Nếu có Docker, có thể dựng PostgreSQL/PostGIS bằng `compose.yaml` thay
 ```bash
 cp .env.example .env          # sửa mật khẩu trong .env
 docker compose up -d db
+```
+
+Trên Windows (Docker Desktop đang chạy), `scripts\check_db.ps1` làm các bước trên, chờ container `healthy` rồi in phiên bản PostgreSQL/PostGIS và số bảng trong schema `dw` (kỳ vọng 14). Không cần cài `psql` trên máy; dùng `docker compose exec db psql -U dw -d road_safety_dw`.
+
+Môi trường Python trên Windows (dùng Python 3.13 qua `py`, vì Python 3.10 hết hỗ trợ từ tháng 10/2026):
+
+```powershell
+py -3.13 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 ```
 
 Nguồn DfT Traffic Counts không commit vào Git. Tải về `data/raw/traffic/` và kiểm tra sha256 với manifest đã commit:

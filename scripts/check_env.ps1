@@ -22,13 +22,23 @@ $cs = Get-CimInstance Win32_ComputerSystem
 $drive = Get-PSDrive -Name (Get-Location).Drive.Name
 "{0,-16} {1:N1} GB free" -f "Disk (repo)", ($drive.Free / 1GB)
 $virt = (Get-CimInstance Win32_Processor | Select-Object -First 1).VirtualizationFirmwareEnabled
-"{0,-16} {1}" -f "Virtualization", $virt
+# Windows reports VirtualizationFirmwareEnabled = False once a hypervisor (Hyper-V/WSL2) owns VT-x,
+# so HypervisorPresent is the value that tells whether WSL2/Docker can run.
+"{0,-16} firmware flag {1}, hypervisor present {2}" -f "Virtualization", $virt, $cs.HypervisorPresent
 
 "`n== Tools =="
 Show-Command "git" "git" @("--version")
 Show-Command "python" "python" @("--version")
 Show-Command "py launcher" "py" @("--version")
-Show-Command "docker" "docker" @("version", "--format", "{{.Server.Version}}")
+Show-Command "docker client" "docker" @("version", "--format", "{{.Client.Version}}")
+if (Get-Command docker -ErrorAction SilentlyContinue) {
+    $server = (& docker info --format "{{.ServerVersion}}" 2>$null | Select-Object -First 1)
+    if ($LASTEXITCODE -eq 0 -and $server) {
+        "{0,-16} {1}" -f "docker engine", $server
+    } else {
+        "{0,-16} NOT RUNNING (start Docker Desktop, then rerun)" -f "docker engine"
+    }
+}
 Show-Command "docker compose" "docker" @("compose", "version")
 Show-Command "psql" "psql" @("--version")
 Show-Command "code (VS Code)" "code" @("--version")
