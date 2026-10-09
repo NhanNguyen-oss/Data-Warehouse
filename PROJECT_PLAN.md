@@ -2,9 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.3.0
+- Phiên bản: 0.3.1
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 một phần — chưa kiểm tra máy Windows. S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
+- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0: đã có thông tin máy Windows, chọn Windows host + Docker Desktop (D12); còn chờ container health check trên máy người dùng. S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -42,7 +42,8 @@ DW phục vụ dữ liệu phân tích; dashboard trình bày kết quả; DSS b
 | Nội dung | Trạng thái | Ghi chú |
 |---|---|---|
 | Hướng B: Traffic Flow + Road Safety | Đã chốt bởi người dùng | Tích hợp STATS19 và DfT Traffic Counts |
-| Hệ điều hành phát triển Windows | Đã chốt bởi người dùng | Chưa biết phiên bản Windows/cấu hình máy |
+| Hệ điều hành phát triển Windows | Đã chốt bởi người dùng | Windows 11 Pro build 26300, 31,8 GB RAM, 356 GB trống (mục 12, phiên 0.3.1) |
+| Windows host + Docker Desktop (WSL2 backend), Python 3.13 venv | Đã áp dụng (D12) | Docker Compose v5.5.1 và WSL2 đã có; container chưa chạy thử |
 | Cần có web application về sau | Đã chốt bởi người dùng | Tách ETL khỏi notebook và API |
 | Một file kế hoạch được cập nhật liên tục | Đã chốt bởi người dùng | File này là bản bàn giao chính |
 | London, 2021–2025 | Phạm vi MVP đề xuất trước đó | Phụ thuộc năm chung và trạng thái bản phát hành; cần xác nhận |
@@ -284,7 +285,8 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 
 | Ưu tiên | Việc tiếp theo | Trạng thái |
 |---|---|---|
-| P0 | Kiểm tra Windows version, tài nguyên, WSL2/Docker và công cụ đã có | Pending — người dùng chạy `scripts/check_env.ps1` và dán kết quả |
+| P0 | Kiểm tra Windows version, tài nguyên, WSL2/Docker và công cụ đã có | Done 2026-10-10 — kết quả ở phiên 0.3.1 |
+| P0 | Container health check trên máy Windows | Pending — mở Docker Desktop, chạy `scripts\check_db.ps1`, dán kết quả (kỳ vọng `healthy` và 14 bảng/view trong `dw`) |
 | P0 | Chốt phạm vi MVP London và năm sau kiểm tra metadata | Pending — chờ profiling và người dùng |
 | P0 | Chốt bài toán: README hay hướng B (D08) | Pending — cần người dùng |
 | P0 | Lấy đúng ba datasets, inventory và source manifest | Done 2026-10-10 — `data/manifest/source_manifest.json` |
@@ -299,7 +301,24 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 
 **Phiên 0.3.0:** thêm `src/etl/authority_year.py` (stage S3, phần A+B) và `data/reference/authority_code_map.csv`. Chạy toàn quốc 2021–2025 trong 8,7 giây; mọi kiểm tra đối soát đạt (mục 7). Bằng chứng: 16 unittest qua (thêm 6 test cho mapping, aggregate, leap year, không fan-out).
 
-Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) nhận kết quả `scripts/check_env.ps1` từ máy Windows; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
+**Phiên 0.3.1 — kết quả `scripts/check_env.ps1` trên máy người dùng (2026-10-10):**
+
+| Mục | Giá trị | Đánh giá |
+|---|---|---|
+| Windows | 11 Pro, build 26300 | Hỗ trợ WSL2 và Docker Desktop |
+| RAM / disk | 31,8 GB / 356,1 GB trống | Đủ cho PostgreSQL và ~300 MB dữ liệu nguồn |
+| Virtualization | `False` | Không chặn: Windows trả `VirtualizationFirmwareEnabled = False` khi hypervisor (WSL2/Hyper-V) đã chiếm VT-x. WSL2 đang chạy distro `docker-desktop` nên virtualization hoạt động. Script đã thêm dòng `HypervisorPresent` để rõ hơn |
+| git | 2.52.0 | Đủ |
+| python | 3.10.11 (`python`), 3.13.13 (`py`) | Repo cần ≥ 3.10, nhưng 3.10 hết hỗ trợ tháng 10/2026; dùng `py -3.13 -m venv .venv` |
+| docker | client có; dòng server trống | Docker Desktop chưa chạy lúc kiểm tra (server không phản hồi). Script đã tách client/engine |
+| docker compose | v5.5.1 | Đủ |
+| psql | Không có | Không cần; dùng `docker compose exec db psql` |
+| VS Code | 1.118.1 | Đủ |
+| WSL | default `docker-desktop`, version 2 | Chưa có distro Linux riêng; không cần cho phương án D12 |
+
+Quyết định D12: chạy Windows host + Docker Desktop (WSL2 backend) cho PostgreSQL/PostGIS; ETL và test chạy bằng Python 3.13 trong `.venv` trên Windows (mã chỉ dùng thư viện chuẩn và `pathlib`, không phụ thuộc hệ điều hành). Không cần cài distro Ubuntu trong WSL. Thêm `scripts/check_db.ps1` để hoàn tất S0.
+
+Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) nhận kết quả `scripts\check_db.ps1` từ máy Windows; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
 
 Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
 
@@ -318,6 +337,7 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | D09 | 2026-10-10 | Mỗi tính năng một branch `cursor/*-b2a4` và một PR vào `main`; các PR xếp chồng, merge theo thứ tự | Người dùng yêu cầu |
 | D10 | 2026-10-10 | Mã authority chuẩn = mã DfT Traffic trong năm; collision dùng mã lúc xảy ra vụ + bảng ánh xạ; AADF dùng `count_point_later_code` | Áp dụng trong PoC; đối soát 0 dòng không ghép được |
 | D11 | 2026-10-10 | Không dùng cờ `collision_injury_based` làm chỉ báo; dùng số hiệu chỉnh | Bằng chứng: Met Police 2021–2024 |
+| D12 | 2026-10-10 | Windows host + Docker Desktop (WSL2 backend); Python 3.13 venv qua `py`; psql trong container | Dựa trên kết quả `check_env.ps1`; chờ `check_db.ps1` xác nhận |
 
 ## 14. Changelog
 
@@ -327,5 +347,6 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.2.0 | 2026-10-10 | Đưa kế hoạch vào repo; skeleton S0; source manifest có sha256; ánh xạ cây thư mục (D06); thêm nguồn local authority traffic (D07); ghi mâu thuẫn bài toán (D08) | `data/manifest/source_manifest.json`; 5 unittest; `schema.sql` chạy trên PostgreSQL 16 |
 | 0.2.1 | 2026-10-10 | Profiling S2 tái lập; xác nhận 8 con số cũ; ghi phát hiện link length Minor, làm tròn nhóm phương tiện, số dạng khoa học, lệch mã authority | `reports/profiling/PROFILE.md`; 10 unittest |
 | 0.3.0 | 2026-10-10 | Authority–year PoC (S3 A+B); mapping contract (D10); gate trước thiết kế vật lý đạt về dữ liệu, còn chờ chốt phạm vi; cờ injury-based không đáng tin (D11) | `reports/poc/RECONCILIATION.md`; 16 unittest |
+| 0.3.1 | 2026-10-10 | Ghi cấu hình máy Windows; chọn môi trường D12; sửa `check_env.ps1` (hypervisor, docker engine); thêm `check_db.ps1` | Output `check_env.ps1` do người dùng gửi; `check_db.ps1` chưa chạy |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.
