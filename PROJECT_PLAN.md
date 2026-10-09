@@ -2,9 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.2.1
+- Phiên bản: 0.3.0
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S2 xong (profiling tái lập, `reports/profiling/PROFILE.md`); S0 một phần — chưa kiểm tra máy Windows của người dùng.
+- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 một phần — chưa kiểm tra máy Windows. S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -150,6 +150,7 @@ Phát hiện mới có ảnh hưởng thiết kế:
 - `local_authority_traffic.csv` có 1.318 dòng ghi số dạng khoa học (`1.245e+09`); phải parse bằng float.
 - Mã authority: so với AADF và LA traffic, `local_authority_highway` (mã lúc xảy ra vụ) khớp tốt hơn `_current`. Lệch còn lại: `EHEATHROW`; Sheffield/Barnsley mã mới `E08000039`/`E08000038` trong STATS19 2025 so với mã cũ `E08000019`/`E08000016` bên Traffic; Cumbria `E10000006` còn trong AADF 2023; `E10000021` (Northamptonshire) trong AADF 2021. Cần mapping contract ở S3.
 - Tỷ lệ vụ ghi theo injury-based tăng từ 49,62% (2021) lên 86,53% (2025), nên severe collision share không so sánh được giữa các năm nếu không hiệu chỉnh.
+- (v0.3.0) Cờ `collision_injury_based` không đáng tin làm chỉ báo: Metropolitan Police có cờ 0 cho 2021–2024 (chỉ ~20 vụ/năm có cờ 1) và 1 cho 2025, nhưng serious hiệu chỉnh bằng serious gốc ở mọi năm. Một phần mức tăng toàn quốc ở trên là do Met đổi cờ năm 2025. Dùng `collision_adjusted_severity_*` thay cho cờ (D11).
 - Trạng thái provisional/final không ghi trong file nào; còn phải đối chiếu trang DfT.
 
 **Trạng thái bằng chứng ban đầu: chưa tái lập.** Hội thoại hiện tại không cung cấp script, log hoặc output gốc xác minh các con số này. Không đưa vào báo cáo như kết quả đã chứng minh. Cần chạy lại profiling và ghi file nguồn, hash, thời gian chạy, filters, kết quả. Đặc biệt kiểm tra năm 2025, định nghĩa collision identifier và bản phát hành provisional/final từ metadata.
@@ -167,6 +168,23 @@ Phát hiện mới có ảnh hưởng thiết kế:
 **C. Spatial integration — tùy chọn:** cần road geometry phù hợp, CRS xác định, khóa liên kết link–count point và temporal validity. Major Roads shapefile là ứng viên, chưa đảm bảo bao phủ minor roads. Nearest point không tự chứng minh cùng link. Dùng khoảng cách theo CRS mét, road class/road number nếu phù hợp, kiểm tra thủ công mẫu, lưu match method/distance/confidence/ambiguity. Cho phép unmatched; không ép ghép tất cả.
 
 **Gate trước thiết kế vật lý:** có báo cáo profiling tái lập; key/grain đúng; năm/địa bàn tương thích; mapping contract; KPI đủ dữ liệu; giới hạn exposure được ghi rõ. Nếu C thất bại, tiếp tục MVP A+B và để link-level rates ở trạng thái deferred.
+
+**Kết quả A+B (2026-10-10, v0.3.0).** Chạy `python src/etl/authority_year.py`; bằng chứng ở `reports/poc/RECONCILIATION.md`, `authority_year.csv` (1.033 dòng = 207 authority × 5 năm, trừ biến động địa giới) và `remap_audit.csv`.
+
+| Điều kiện gate | Trạng thái | Bằng chứng |
+|---|---|---|
+| Profiling tái lập | Đạt | `reports/profiling/` có run_id và sha256 |
+| Key/grain đúng | Đạt | collision_index, (count_point_id, year), (local_authority_code, year) đều duy nhất; output 0 khóa trùng |
+| Năm/địa bàn tương thích | Đạt | Năm chung 2021–2025; 1.033/1.033 authority–year của LA traffic có mặt; London 33/33 |
+| Mapping contract | Đạt | `data/reference/authority_code_map.csv` (3 quy tắc) + quy tắc `count_point_later_code` (11 dòng AADF); 0 collision và 0 AADF row không ghép được |
+| Đối soát với raw | Đạt | Collisions 513.801 = 513.801; AADF 111.465 = 111.465; LA traffic 1.033 = 1.033; Major vehicle-km AADF không vượt vehicle-km toàn mạng ở authority–year nào |
+| KPI đủ dữ liệu | Đạt một phần | Đủ cho collisions, severity, adjusted KSI, AADF điểm, estimated share. Rate chỉ ở dạng `candidate_*` |
+| Giới hạn exposure ghi rõ | Đạt | Mục Phương pháp và Giới hạn trong `RECONCILIATION.md` |
+| Phạm vi MVP được người dùng chốt | **Chưa** | London vs toàn quốc vẫn là đề xuất; PoC chạy toàn quốc, London là tập con |
+
+Mapping contract (D10): mã chuẩn là mã authority mà DfT Traffic dùng trong năm đó. Collision lấy `local_authority_highway` (mã lúc xảy ra vụ) rồi áp bảng ánh xạ: `EHEATHROW` → `E09000017`; `E08000038` → `E08000016` và `E08000039` → `E08000019` (Traffic vẫn dùng mã cũ của Barnsley/Sheffield). AADF có mã không hợp lệ trong năm lấy mã của cùng count point ở năm sau gần nhất (Cumbria 2023: 10 dòng; Northamptonshire 2021: 1 dòng). Cumbria 2021–2022 giữ `E10000006`, nên chuỗi thời gian gãy tại 2023; cần `dim_authority` có version history khi thiết kế S4.
+
+Hai rate thử nghiệm có trong PoC nhưng chưa bật (D05): `candidate_collisions_per_100m_vkm` (tổng collision / vehicle-km toàn mạng của LA traffic, cùng phạm vi mạng đường) và `candidate_major_collisions_per_100m_major_vkm` (collision có `first_road_class` Motorway/A(M)/A chia cho vehicle-km Major từ AADF). London: 77,92 (2021) giảm còn 66,09 (2025) collisions / 100 triệu vehicle-km toàn mạng.
 
 ## 8. Kiến trúc và mô hình dữ liệu đề xuất
 
@@ -272,12 +290,18 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | P0 | Lấy đúng ba datasets, inventory và source manifest | Done 2026-10-10 — `data/manifest/source_manifest.json` |
 | P1 | Tạo repository và môi trường tái lập | Done một phần — skeleton có; Docker chưa chạy thử |
 | P1 | Viết/run profiling | Done 2026-10-10 — `src/etl/profiling.py`, `reports/profiling/` |
-| P1 | Authority–year PoC kèm mapping contract | Pending |
+| P1 | Authority–year PoC kèm mapping contract | Done 2026-10-10 — `src/etl/authority_year.py`, `reports/poc/` |
+| P2 | Thiết kế DW S4: `fact_traffic_aadf`, `dim_count_point`, `dim_authority` (SCD2 cho Cumbria), `mart_authority_year`; ERD, dictionary, mapping nguồn–đích | Pending — gate đạt về dữ liệu; chờ người dùng chốt phạm vi và D08 |
+| P2 | Quyết định có bật rate theo LA traffic (D07) | Pending — cần người dùng duyệt phương pháp |
 | P1 | Đối chiếu trạng thái provisional/final trên trang DfT | Pending |
-| P2 | Chốt KPI contract và grain, rồi thiết kế DW | Blocked bởi profiling/PoC |
+| P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked về dữ liệu (profiling/PoC xong); còn chờ S1 |
 | P3 | Spatial PoC / link-level rate | Optional; cần geometry và mapping |
 
-Agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
+**Phiên 0.3.0:** thêm `src/etl/authority_year.py` (stage S3, phần A+B) và `data/reference/authority_code_map.csv`. Chạy toàn quốc 2021–2025 trong 8,7 giây; mọi kiểm tra đối soát đạt (mục 7). Bằng chứng: 16 unittest qua (thêm 6 test cho mapping, aggregate, leap year, không fan-out).
+
+Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) nhận kết quả `scripts/check_env.ps1` từ máy Windows; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
+
+Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
 
 ## 13. Decision log
 
@@ -292,6 +316,8 @@ Agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và
 | D07 | 2026-10-10 | Thêm `local_authority_traffic.csv` làm ứng viên exposure toàn mạng đường | Đề xuất; chưa bật rate (giữ D05) |
 | D08 | 2026-10-10 | README (08/10) chốt bài toán KSI/100.000 dân; kế hoạch ghi hướng B | Mâu thuẫn mở, cần người dùng chọn hoặc gộp |
 | D09 | 2026-10-10 | Mỗi tính năng một branch `cursor/*-b2a4` và một PR vào `main`; các PR xếp chồng, merge theo thứ tự | Người dùng yêu cầu |
+| D10 | 2026-10-10 | Mã authority chuẩn = mã DfT Traffic trong năm; collision dùng mã lúc xảy ra vụ + bảng ánh xạ; AADF dùng `count_point_later_code` | Áp dụng trong PoC; đối soát 0 dòng không ghép được |
+| D11 | 2026-10-10 | Không dùng cờ `collision_injury_based` làm chỉ báo; dùng số hiệu chỉnh | Bằng chứng: Met Police 2021–2024 |
 
 ## 14. Changelog
 
@@ -300,5 +326,6 @@ Agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và
 | 0.1.0 | 2026-10-09 | Tạo kế hoạch tổng hợp; Windows roadmap; integration gates; KPI/DSS guardrails; next actions | Hội thoại người dùng; chưa kiểm chứng lại datasets |
 | 0.2.0 | 2026-10-10 | Đưa kế hoạch vào repo; skeleton S0; source manifest có sha256; ánh xạ cây thư mục (D06); thêm nguồn local authority traffic (D07); ghi mâu thuẫn bài toán (D08) | `data/manifest/source_manifest.json`; 5 unittest; `schema.sql` chạy trên PostgreSQL 16 |
 | 0.2.1 | 2026-10-10 | Profiling S2 tái lập; xác nhận 8 con số cũ; ghi phát hiện link length Minor, làm tròn nhóm phương tiện, số dạng khoa học, lệch mã authority | `reports/profiling/PROFILE.md`; 10 unittest |
+| 0.3.0 | 2026-10-10 | Authority–year PoC (S3 A+B); mapping contract (D10); gate trước thiết kế vật lý đạt về dữ liệu, còn chờ chốt phạm vi; cờ injury-based không đáng tin (D11) | `reports/poc/RECONCILIATION.md`; 16 unittest |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.

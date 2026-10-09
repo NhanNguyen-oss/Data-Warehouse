@@ -117,16 +117,19 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
 │   ├── raw/               # 3 file CSV STATS19 và file tra mã của DfT
 │   │   └── traffic/       # DfT Traffic Counts, tải bằng sources.py (không commit)
 │   ├── manifest/          # source_manifest.json: sha256, kích thước, số dòng
+│   ├── reference/         # authority_code_map.csv: mapping contract mã authority
 │   ├── staging/           # dữ liệu trung gian (không commit)
 │   └── processed/         # CSV do ETL sinh ra, mỗi bảng dw.* một file (không commit)
 ├── docs/                  # báo cáo PDF và slide PDF
 ├── reports/profiling/     # PROFILE.md và profile.json do profiling.py sinh ra
+├── reports/poc/           # authority_year.csv, remap_audit.csv, RECONCILIATION.md do authority_year.py sinh ra
 ├── scripts/check_env.ps1  # kiểm tra môi trường Windows (stage S0)
 ├── tests/                 # unittest, chạy bằng python -m unittest discover -s tests
 └── src/
     ├── database/schema.sql    # DDL kho dữ liệu, view và truy vấn OLAP mẫu
     ├── etl/sources.py         # danh mục nguồn, tải, manifest có checksum
     ├── etl/profiling.py       # profiling nguồn (S2), ghi reports/profiling/
+    ├── etl/authority_year.py  # PoC tích hợp authority x year (S3), ghi reports/poc/
     ├── etl/pipeline.py        # Extract, Transform, Load
     ├── frontend/app.py        # dashboard Streamlit
     └── dss/model.py           # mô hình hỗ trợ quyết định
@@ -155,6 +158,7 @@ Nguồn DfT Traffic Counts không commit vào Git. Tải về `data/raw/traffic/
 python src/etl/sources.py fetch      # tải file còn thiếu, không ghi đè file đã có
 python src/etl/sources.py verify     # so sha256 với data/manifest/source_manifest.json
 python src/etl/profiling.py          # profiling S2 -> reports/profiling/PROFILE.md (khoảng 15 giây)
+python src/etl/authority_year.py     # PoC S3 authority x year -> reports/poc/RECONCILIATION.md (khoảng 10 giây)
 python -m unittest discover -s tests
 ```
 
