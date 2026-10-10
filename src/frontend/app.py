@@ -17,6 +17,11 @@ from decimal import Decimal
 
 import pandas as pd
 import streamlit as st
+<<<<<<< Updated upstream
+=======
+from warehouse import DatabaseConfigurationError, load_monthly_facts
+from dss_panel import render_dss
+>>>>>>> Stashed changes
 
 # Dữ liệu minh họa, cùng hạt với data/processed/fact_event.csv do ETL tạo ra.
 DEMO_FACTS = pd.DataFrame(
@@ -70,6 +75,7 @@ def main() -> None:
         facts["year"].isin(selected_years) & facts["segment"].isin(selected_segments)
     ]
     if view.empty:
+<<<<<<< Updated upstream
         st.warning("Không có dòng nào khớp bộ lọc.")
         return
 
@@ -92,6 +98,33 @@ def main() -> None:
     st.subheader("Chi tiết đã lọc")
     st.dataframe(view, use_container_width=True)
 
+=======
+        st.info("Select at least one year and authority with data.")
+        st.stop()
+    missing = int(view.adjustment_missing.sum())
+    cols = st.columns(4)
+    for col, label, value in zip(cols[:3], ["Collisions", "Casualties", "Fatalities"],
+            [view.collisions.sum(), view.casualties.sum(), view.fatalities.sum()]):
+        col.metric(label, f"{value:,.0f}")
+    cols[3].metric("Adjusted KSI (people)", "Incomplete" if missing else f"{view.ksi_adjusted.sum():,.1f}")
+    if missing:
+        st.warning(f"{missing:,} casualties lack severity adjustments; adjusted KSI total is unavailable.")
+    monthly = view.groupby(["year", "month_number"], as_index=False).collisions.sum()
+    monthly["period"] = pd.to_datetime(dict(year=monthly.year, month=monthly.month_number, day=1))
+    st.subheader("Monthly collisions")
+    st.line_chart(monthly.set_index("period").collisions)
+    st.subheader("Collisions by authority")
+    st.bar_chart(view.groupby("authority_name").collisions.sum().sort_values(ascending=False))
+    detail = view.copy()
+    detail.loc[detail.adjustment_missing > 0, "ksi_adjusted"] = float("nan")
+    st.subheader("Authority and month detail")
+    st.dataframe(detail, use_container_width=True, hide_index=True)
+    st.download_button("Download filtered CSV", detail.to_csv(index=False).encode("utf-8-sig"),
+                       "london_road_safety.csv", "text/csv")
+    st.caption("Heathrow is included in Hillingdon. Collision and casualty facts are aggregated "
+               "separately before joining. Traffic integration is pending.")
+    render_dss(view, selected_years)
+>>>>>>> Stashed changes
 
 if __name__ == "__main__":
     main()

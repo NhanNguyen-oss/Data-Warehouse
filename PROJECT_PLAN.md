@@ -2,9 +2,15 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
+<<<<<<< Updated upstream
 - Phiên bản: 0.3.3
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
 - Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
+=======
+- Phiên bản: 0.4.0
+- Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
+- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S1 đã chốt London 2021–2025, Traffic Flow + Road Safety (D13); Baseline STATS19 đã nạp và đối soát trong container qua psql; host dashboard đã nối DB thật sau sửa authentication; host ETL `--load` chưa chạy lại. DSS safety v0.4.0 đã nối warehouse; S4 Traffic/London mart còn pending.
+>>>>>>> Stashed changes
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -261,6 +267,9 @@ Git ignore: secrets, virtual environments, dữ liệu lớn, build artifacts. G
 
 ## 11. DSS và đánh giá
 
+**Hiện thực v0.4.0:** người dùng yêu cầu nối DSS vào dashboard. Model đọc aggregate PostgreSQL theo London/năm đã chọn, xếp hạng ưu tiên khảo sát bằng mean annual adjusted KSI (50), KSI change first/last selected year (30), adjusted KSI/casualties (20). Đây là trọng số thăm dò có thể sửa, không phải trọng số chính sách đã được hiệu chỉnh. Chọn ngưỡng/top N, giải thích đóng góp, so what-if với trọng số mặc định và xuất CSV. Ties cùng rank; constant criterion đóng góp 0; thiếu đủ tháng/số hiệu chỉnh hoặc mẫu số 0 bị loại có lý do; một năm tắt trend. Bằng chứng/công thức/giới hạn: [`reports/validation/DSS.md`](reports/validation/DSS.md). Traffic/exposure vẫn chưa bật, nên DSS tích hợp Traffic phía dưới là phần mở rộng tiếp theo.
+
+
 MVP DSS đề xuất: xếp hạng địa bàn để ưu tiên khảo sát bằng MCDA. Người dùng thay trọng số cho mức độ nghiêm trọng, xu hướng tai nạn và lưu lượng trong phạm vi quan sát. Tiêu chí rate chỉ dùng khi exposure hợp lệ. Định nghĩa normalization, hướng tốt/xấu, outliers, missing; weights không âm và tổng chuẩn hóa bằng 1.
 
 Hiển thị đóng góp từng tiêu chí, năm dữ liệu, coverage và tỷ lệ estimated; kiểm tra độ ổn định ranking khi thay trọng số. Ghi rõ đây là ưu tiên khảo sát, chưa là kết luận một dự án đầu tư sẽ giảm bao nhiêu tai nạn.
@@ -297,7 +306,11 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | P2 | Thiết kế DW S4: `fact_traffic_aadf`, `dim_count_point`, `dim_authority` (SCD2 cho Cumbria), `mart_authority_year`; ERD, dictionary, mapping nguồn–đích | Pending — gate đạt về dữ liệu; chờ người dùng chốt phạm vi và D08 |
 | P2 | Quyết định có bật rate theo LA traffic (D07) | Pending — cần người dùng duyệt phương pháp |
 | P1 | Đối chiếu trạng thái provisional/final trên trang DfT | Pending |
+<<<<<<< Updated upstream
 | P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked về dữ liệu (profiling/PoC xong); còn chờ S1 |
+=======
+| P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked — D13 chốt phạm vi; DSS an toàn giao thông đặc tả tại `reports/validation/DSS.md`; Traffic/exposure còn pending |
+>>>>>>> Stashed changes
 | P3 | Spatial PoC / link-level rate | Optional; cần geometry và mapping |
 
 **Phiên 0.3.0:** thêm `src/etl/authority_year.py` (stage S3, phần A+B) và `data/reference/authority_code_map.csv`. Chạy toàn quốc 2021–2025 trong 8,7 giây; mọi kiểm tra đối soát đạt (mục 7). Bằng chứng: 16 unittest qua (thêm 6 test cho mapping, aggregate, leap year, không fan-out).
@@ -321,7 +334,11 @@ Lần chạy `scripts\check_db.ps1` đầu tiên trên máy người dùng: `db 
 
 Quyết định D12: chạy Windows host + Docker Desktop (WSL2 backend) cho PostgreSQL/PostGIS; ETL và test chạy bằng Python 3.13 trong `.venv` trên Windows (mã chỉ dùng thư viện chuẩn và `pathlib`, không phụ thuộc hệ điều hành). Không cần cài distro Ubuntu trong WSL. Thêm `scripts/check_db.ps1` để hoàn tất S0.
 
+<<<<<<< Updated upstream
 Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) chạy thử `pipeline.py --load` vào container trên máy người dùng; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
+=======
+Agent tiếp theo: D13 đã chốt Traffic Flow + Road Safety tại London, 2021–2025. Baseline STATS19 đã nạp qua container psql, row count và aggregate khớp (xem `reports/validation/STATS19_LOAD.md`). Bước tiếp theo: S4 (ERD, dictionary, DDL cho phần Traffic và London mart) dựa trên `reports/poc/`; host `DW_DATABASE_URL` đã sửa ở v0.3.7; kiểm chứng lại host ETL khi tự động hóa load. Dashboard STATS19 đã được người dùng yêu cầu nối DB trong phiên 0.3.6; DSS an toàn giao thông đã tích hợp ở v0.4.0; Traffic mart chưa triển khai. Không bật rate `candidate_*` khi chưa được duyệt.
+>>>>>>> Stashed changes
 
 Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
 
@@ -353,5 +370,7 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.3.1 | 2026-10-10 | Ghi cấu hình máy Windows; chọn môi trường D12; sửa `check_env.ps1` (hypervisor, docker engine); thêm `check_db.ps1` | Output `check_env.ps1` do người dùng gửi; `check_db.ps1` chưa chạy |
 | 0.3.2 | 2026-10-10 | Container `healthy` trên máy người dùng; sửa lỗi quoting PowerShell 5.1 trong `check_db.ps1` | Output người dùng gửi; chạy end-to-end trên máy agent: healthy, PG 16.4, PostGIS 3.4.3, 14 bảng/view |
 | 0.3.3 | 2026-10-10 | S0 hoàn thành trên máy người dùng | Output `check_db.ps1` người dùng gửi: healthy, PG 16.4, PostGIS 3.4.3, `dw tables 14` |
+
+| 0.4.0 | 2026-10-10 | DSS an toàn giao thông từ warehouse: MCDA 3 tiêu chí, weights/threshold/top N, đóng góp, what-if, CLI và CSV; loại missing/zero denominator, ties/constants; không bật exposure | 35 tests pass; live AppTest: 33 eligible, Westminster đầu mặc định, City of London đầu trend-only, 32 đổi rank; `reports/validation/DSS.md` |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.

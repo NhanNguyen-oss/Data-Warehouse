@@ -136,7 +136,101 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
     └── dss/model.py           # mô hình hỗ trợ quyết định
 ```
 
+<<<<<<< Updated upstream
 ## Cài đặt và chạy
+=======
+### Trạng thái
+
+Cập nhật ngày 08/10/2026.
+
+`schema.sql` và `pipeline.py` đã viết theo dữ liệu STATS19. `frontend/app.py` và `dss/model.py` vẫn là khung mẫu và đang chạy trên dữ liệu demo.
+
+| Giai đoạn | Nội dung | Hạn | Trạng thái |
+| --- | --- | --- | --- |
+| 1 | Chốt bài toán, KPI, nguồn dữ liệu | 04/10 | Xong ngày 08/10 (trễ 4 ngày). Còn thiếu mục 1 của báo cáo và nguồn dân số ONS |
+| 2 | Schema và ETL | 25/10 | ETL chạy đủ 5 năm ra CSV trong khoảng 1 phút, không loại dòng nào, đối soát khớp. Chưa chạy thử `schema.sql` và `--load` trên PostgreSQL. Chưa có SCD |
+| 3 | CSDL, OLAP, dashboard | 01/11 | Đã có view `v_local_authority_year` và 5 truy vấn OLAP mẫu (chưa chạy). Dashboard chưa làm |
+| 4 | DSS trên số liệu của kho | 08/11 | Chưa bắt đầu |
+| 5 | Đánh giá, hạn chế, hướng phát triển | 12/11 | Chưa bắt đầu |
+| 6 | Báo cáo, slide, ZIP, nộp LMS | 15/11 | Chưa bắt đầu |
+
+Kết quả lần chạy ETL đủ 5 năm (kiểm tra lại ngày 08/10):
+
+| Bảng | Số dòng |
+| --- | --- |
+| `fact_collision` / `fact_vehicle` / `fact_casualty` | 513.801 / 937.265 / 652.821 |
+| `dim_location` / `dim_vehicle_action` / `dim_road` / `dim_casualty` | 45.751 / 28.345 / 22.162 / 20.280 |
+| `dim_vehicle` / `dim_driver` / `dim_conditions` | 3.002 / 2.073 / 1.949 |
+| `dim_date` / `dim_time` / `dim_severity` | 1.826 / 1.441 / 3 |
+
+#### Việc còn mở
+
+1. **Viết mục 1 của báo cáo** từ phần Bài toán ở trên: bối cảnh, người ra quyết định, KPI, nguồn dữ liệu, danh sách cột nguồn.
+2. **Tải dân số ONS** (mid-year population estimates 2021–2025, cấp county và unitary authority) vào `data/raw/`, rồi đối chiếu mã với `local_authority_highway_current`.
+3. **Bổ sung SCD Type 2 cho highway authority.** Chuẩn đầu ra L.O.2 yêu cầu SCD, nhưng schema hiện chưa có. Thêm bảng `dim_highway_authority` có `effective_from`, `effective_to`, `is_current`, và sửa ETL để đọc thêm cột `local_authority_highway_current` (hiện `dim_location` chỉ lưu mã tại thời điểm xảy ra vụ). Các thay đổi có thật: Cumbria (`E10000006`) tách thành Cumberland (`E06000063`) và Westmorland and Furness (`E06000064`) từ năm 2023; Sheffield (`E08000019` sang `E08000039`) và Barnsley (`E08000016` sang `E08000038`) đổi mã. Khoảng 1.500 dòng lệch lẻ giữa các quận London giống sửa lỗi hơn là đổi địa giới, cần lọc riêng.
+4. **Thêm fact dân số** dạng periodic snapshot (một dòng là một highway authority trong một năm). Đây là measure semi-additive: cộng được theo địa bàn, không cộng theo năm.
+5. **Viết lại view đầu vào cho DSS** ở cấp highway authority và mức nạn nhân, thay cho `v_local_authority_year` (đang ở cấp quận ONS, mức vụ va chạm và xếp theo số tuyệt đối). View mới tính sẵn bốn tiêu chí trong bảng Mô hình DSS.
+6. **Cài PostgreSQL**, chạy `schema.sql`, rồi chạy `python src/etl/pipeline.py --load`. Kiểm tra số dòng trong `dw.*` khớp với bảng trên và chạy thử các truy vấn OLAP mẫu.
+7. **Sửa `src/dss/model.py`** để chọn top 10 thay vì một phương án, đọc từ view mới, và in câu giải thích theo tiêu chí.
+8. **Viết dashboard** (`src/frontend/app.py`) theo 5 KPI ở trên.
+9. **Luôn dùng KSI hiệu chỉnh khi so sánh giữa các năm.** Tỷ lệ vụ được ghi theo hệ thống dựa trên thương tích tăng từ 49,6% (2021) lên 86,5% (2025). KSI gốc tăng 17% trong giai đoạn này, KSI hiệu chỉnh chỉ tăng 12,7%.
+10. **Chuẩn bị dữ liệu nộp bài.** Ba file nguồn tổng cộng khoảng 257 MB, riêng file vehicle 104,7 MB (sát giới hạn 100 MiB mỗi file của GitHub). Nên để bản trích (ví dụ năm 2025) trong `data/` và ghi link nguồn DfT trong báo cáo.
+
+## How to use this source code
+
+### DSS: xếp hạng địa bàn cần ưu tiên khảo sát
+
+Mở dashboard và kéo xuống **Decision support · Authority priorities**. Bộ lọc năm và địa bàn ở sidebar cũng áp dụng cho DSS.
+
+- Thay trọng số của KSI hiệu chỉnh trung bình năm, thay đổi KSI và tỷ trọng KSI trong số nạn nhân. Mặc định thăm dò: 50/30/20; trọng số được chuẩn hóa.
+- Chọn ngưỡng điểm và số địa bàn đề xuất. Xem tiêu chí thô, đóng góp từng tiêu chí và lý do đề xuất.
+- Xem **What-if comparison with default weights** để so thứ hạng/trạng thái đề xuất với trọng số mặc định; tải CSV kèm năm, trọng số, ngưỡng và kết quả.
+- Chọn một năm sẽ tắt tiêu chí xu hướng. Các địa bàn thiếu đủ tháng hoặc thiếu số hiệu chỉnh được liệt kê cùng lý do loại. Điểm chỉ phản ánh ưu tiên tương đối trong tập địa bàn đang chọn.
+
+DSS đọc aggregate từ PostgreSQL, không đọc raw hoặc demo. Phiên bản này hỗ trợ ưu tiên khảo sát an toàn giao thông; Traffic/exposure, dân số và mô hình tác động đầu tư chưa tích hợp. Công thức, giả định và kết quả kiểm chứng nằm trong [`reports/validation/DSS.md`](reports/validation/DSS.md).
+
+Chạy cùng mô hình từ CLI:
+
+```powershell
+.venv\Scripts\python.exe src/dss/model.py --years 2021 2022 2023 2024 2025 --top 5
+.venv\Scripts\python.exe src/dss/model.py --weights 0 100 0 --top 5
+```
+
+
+### Chạy dashboard với PostgreSQL
+
+Kết nối host đã được kiểm chứng với user `dw`, database `road_safety_dw`. Dashboard chạy trực tiếp trên Windows, PostgreSQL chạy trong Docker. URL thực tế nằm trong `.env` (không commit).
+
+Dashboard đọc dữ liệu STATS19 thật từ PostgreSQL cho 33 London authorities, giai đoạn 2021–2025. Bộ lọc năm/địa bàn cập nhật số vụ, số nạn nhân, số tử vong và KSI hiệu chỉnh ở mức nạn nhân. Heathrow được gộp vào Hillingdon. DSS xếp hạng an toàn giao thông đã tích hợp; dữ liệu Traffic chưa tích hợp vào dashboard.
+
+1. Dùng `.env` trong root dự án (chép từ `.env.example` nếu chưa có). Đặt `DW_DATABASE_URL` khớp kết nối đã thành công trong công cụ quản lý database:
+
+```dotenv
+DW_DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
+```
+
+Mật khẩu có ký tự đặc biệt phải URL-encode, ví dụ `@` thành `%40`. Dashboard tự đọc `.env`; biến môi trường `DW_DATABASE_URL` có ưu tiên cao hơn. Không commit mật khẩu.
+
+2. Chạy từ PowerShell tại root repository:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+docker compose up -d db
+.venv\Scripts\python.exe src/frontend/warehouse.py
+.venv\Scripts\python.exe -m streamlit run src/frontend/app.py
+```
+
+3. Mở http://localhost:8501. Chọn năm/địa bàn ở sidebar; dùng **Refresh data** sau khi thay cấu hình hoặc nạp lại kho. Kết quả truy vấn được cache 60 giây. Dashboard báo lỗi khi kết nối thất bại và không thay bằng demo data.
+
+Nếu dùng biến môi trường cũ, có thể xóa override trong PowerShell để dashboard đọc `.env`:
+
+```powershell
+Remove-Item Env:DW_DATABASE_URL -ErrorAction SilentlyContinue
+```
+
+
+### Cài đặt và chạy
+>>>>>>> Stashed changes
 
 Cần Python 3.10 trở lên và PostgreSQL 13 trở lên. Bản thân ETL chỉ dùng thư viện chuẩn. Thư viện `psycopg` chỉ cần khi nạp vào CSDL.
 
