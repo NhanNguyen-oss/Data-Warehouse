@@ -144,11 +144,30 @@ Kết quả lần chạy ETL đủ 5 năm (kiểm tra lại ngày 08/10):
 
 ## How to use this source code
 
+### DSS: xếp hạng địa bàn cần ưu tiên khảo sát
+
+Mở dashboard và kéo xuống **Decision support · Authority priorities**. Bộ lọc năm và địa bàn ở sidebar cũng áp dụng cho DSS.
+
+- Thay trọng số của KSI hiệu chỉnh trung bình năm, thay đổi KSI và tỷ trọng KSI trong số nạn nhân. Mặc định thăm dò: 50/30/20; trọng số được chuẩn hóa.
+- Chọn ngưỡng điểm và số địa bàn đề xuất. Xem tiêu chí thô, đóng góp từng tiêu chí và lý do đề xuất.
+- Xem **What-if comparison with default weights** để so thứ hạng/trạng thái đề xuất với trọng số mặc định; tải CSV kèm năm, trọng số, ngưỡng và kết quả.
+- Chọn một năm sẽ tắt tiêu chí xu hướng. Các địa bàn thiếu đủ tháng hoặc thiếu số hiệu chỉnh được liệt kê cùng lý do loại. Điểm chỉ phản ánh ưu tiên tương đối trong tập địa bàn đang chọn.
+
+DSS đọc aggregate từ PostgreSQL, không đọc raw hoặc demo. Phiên bản này hỗ trợ ưu tiên khảo sát an toàn giao thông; Traffic/exposure, dân số và mô hình tác động đầu tư chưa tích hợp. Công thức, giả định và kết quả kiểm chứng nằm trong [`reports/validation/DSS.md`](reports/validation/DSS.md).
+
+Chạy cùng mô hình từ CLI:
+
+```powershell
+.venv\Scripts\python.exe src/dss/model.py --years 2021 2022 2023 2024 2025 --top 5
+.venv\Scripts\python.exe src/dss/model.py --weights 0 100 0 --top 5
+```
+
+
 ### Chạy dashboard với PostgreSQL
 
 Kết nối host đã được kiểm chứng với user `dw`, database `road_safety_dw`. Dashboard chạy trực tiếp trên Windows, PostgreSQL chạy trong Docker. URL thực tế nằm trong `.env` (không commit).
 
-Dashboard đọc dữ liệu STATS19 thật từ PostgreSQL cho 33 London authorities, giai đoạn 2021–2025. Bộ lọc năm/địa bàn cập nhật số vụ, số nạn nhân, số tử vong và KSI hiệu chỉnh ở mức nạn nhân. Heathrow được gộp vào Hillingdon. Tích hợp Traffic và DSS chưa triển khai.
+Dashboard đọc dữ liệu STATS19 thật từ PostgreSQL cho 33 London authorities, giai đoạn 2021–2025. Bộ lọc năm/địa bàn cập nhật số vụ, số nạn nhân, số tử vong và KSI hiệu chỉnh ở mức nạn nhân. Heathrow được gộp vào Hillingdon. DSS xếp hạng an toàn giao thông đã tích hợp; dữ liệu Traffic chưa tích hợp vào dashboard.
 
 1. Dùng `.env` trong root dự án (chép từ `.env.example` nếu chưa có). Đặt `DW_DATABASE_URL` khớp kết nối đã thành công trong công cụ quản lý database:
 

@@ -2,9 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.3.7
+- Phiên bản: 0.4.0
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S1 đã chốt London 2021–2025, Traffic Flow + Road Safety (D13); Baseline STATS19 đã nạp và đối soát trong container qua psql; host dashboard đã nối DB thật sau sửa authentication; host ETL `--load` chưa chạy lại. S4 sẵn sàng thiết kế London mart.
+- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S1 đã chốt London 2021–2025, Traffic Flow + Road Safety (D13); Baseline STATS19 đã nạp và đối soát trong container qua psql; host dashboard đã nối DB thật sau sửa authentication; host ETL `--load` chưa chạy lại. DSS safety v0.4.0 đã nối warehouse; S4 Traffic/London mart còn pending.
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -263,6 +263,9 @@ Git ignore: secrets, virtual environments, dữ liệu lớn, build artifacts. G
 
 ## 11. DSS và đánh giá
 
+**Hiện thực v0.4.0:** người dùng yêu cầu nối DSS vào dashboard. Model đọc aggregate PostgreSQL theo London/năm đã chọn, xếp hạng ưu tiên khảo sát bằng mean annual adjusted KSI (50), KSI change first/last selected year (30), adjusted KSI/casualties (20). Đây là trọng số thăm dò có thể sửa, không phải trọng số chính sách đã được hiệu chỉnh. Chọn ngưỡng/top N, giải thích đóng góp, so what-if với trọng số mặc định và xuất CSV. Ties cùng rank; constant criterion đóng góp 0; thiếu đủ tháng/số hiệu chỉnh hoặc mẫu số 0 bị loại có lý do; một năm tắt trend. Bằng chứng/công thức/giới hạn: [`reports/validation/DSS.md`](reports/validation/DSS.md). Traffic/exposure vẫn chưa bật, nên DSS tích hợp Traffic phía dưới là phần mở rộng tiếp theo.
+
+
 MVP DSS đề xuất: xếp hạng địa bàn để ưu tiên khảo sát bằng MCDA. Người dùng thay trọng số cho mức độ nghiêm trọng, xu hướng tai nạn và lưu lượng trong phạm vi quan sát. Tiêu chí rate chỉ dùng khi exposure hợp lệ. Định nghĩa normalization, hướng tốt/xấu, outliers, missing; weights không âm và tổng chuẩn hóa bằng 1.
 
 Hiển thị đóng góp từng tiêu chí, năm dữ liệu, coverage và tỷ lệ estimated; kiểm tra độ ổn định ranking khi thay trọng số. Ghi rõ đây là ưu tiên khảo sát, chưa là kết luận một dự án đầu tư sẽ giảm bao nhiêu tai nạn.
@@ -299,7 +302,7 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 | P2 | Thiết kế DW S4: `fact_traffic_aadf`, `dim_count_point`, `dim_authority` (SCD2 cho Cumbria), `mart_authority_year`; ERD, dictionary, mapping nguồn–đích | Ready — D13 chốt London 2021–2025; dùng PoC làm bằng chứng thiết kế |
 | P2 | Quyết định có bật rate theo LA traffic (D07) | Pending — cần người dùng duyệt phương pháp |
 | P1 | Đối chiếu trạng thái provisional/final trên trang DfT | Pending |
-| P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked — D13 chốt phạm vi; công thức và trọng số DSS vẫn cần đặc tả |
+| P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked — D13 chốt phạm vi; DSS an toàn giao thông đặc tả tại `reports/validation/DSS.md`; Traffic/exposure còn pending |
 | P3 | Spatial PoC / link-level rate | Optional; cần geometry và mapping |
 
 **Phiên 0.3.0:** thêm `src/etl/authority_year.py` (stage S3, phần A+B) và `data/reference/authority_code_map.csv`. Chạy toàn quốc 2021–2025 trong 8,7 giây; mọi kiểm tra đối soát đạt (mục 7). Bằng chứng: 16 unittest qua (thêm 6 test cho mapping, aggregate, leap year, không fan-out).
@@ -363,5 +366,7 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.3.6 | 2026-10-10 | Dashboard PostgreSQL cho London: aggregate riêng collision/casualty, bộ lọc năm/địa bàn, CSV; đọc DW_DATABASE_URL từ environment hoặc .env; báo lỗi không lộ secret | 22 unittest pass; SQL container: 1.980 groups, 33 authorities, 111.454 collisions, 128.035 casualties, 486 fatalities, 0 missing adjustment. Host URL hiện vẫn lỗi; chờ người dùng đồng bộ cấu hình với kết nối đã thành công |
 
 | 0.3.7 | 2026-10-10 | Sửa authentication: đồng bộ role password theo cấu hình container, cập nhật URL trong .env không commit; người dùng xác nhận DBeaver với dw/road_safety_dw; dashboard Windows nối DB thật | 23 tests pass; host query 1.980 groups; live AppTest: 111.454 collisions, 128.035 casualties, 486 fatalities, KSI 18.981,9; HTTP localhost:8501 trả 200. Docker-dashboard build thử đã dừng, cấu hình thử được gỡ |
+
+| 0.4.0 | 2026-10-10 | DSS an toàn giao thông từ warehouse: MCDA 3 tiêu chí, weights/threshold/top N, đóng góp, what-if, CLI và CSV; loại missing/zero denominator, ties/constants; không bật exposure | 35 tests pass; live AppTest: 33 eligible, Westminster đầu mặc định, City of London đầu trend-only, 32 đổi rank; `reports/validation/DSS.md` |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.

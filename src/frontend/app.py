@@ -4,6 +4,7 @@ import pandas as pd
 import psycopg
 import streamlit as st
 from warehouse import DatabaseConfigurationError, load_monthly_facts
+from dss_panel import render_dss
 
 @st.cache_data(ttl=60, show_spinner=False)
 def load_facts():
@@ -59,7 +60,8 @@ def main():
     st.download_button("Download filtered CSV", detail.to_csv(index=False).encode("utf-8-sig"),
                        "london_road_safety.csv", "text/csv")
     st.caption("Heathrow is included in Hillingdon. Collision and casualty facts are aggregated "
-               "separately before joining. Traffic integration and DSS are pending.")
+               "separately before joining. Traffic integration is pending.")
+    render_dss(view, selected_years)
 
 if __name__ == "__main__":
     main()
