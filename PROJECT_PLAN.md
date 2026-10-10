@@ -2,7 +2,7 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-- Phiên bản: 0.3.3
+- Phiên bản: 0.3.4
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
 - Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
@@ -24,6 +24,8 @@
 Quy tắc phiên bản: patch cho cập nhật tiến độ; minor cho thay đổi thiết kế/phạm vi; major khi đổi hướng bài toán. Việc cập nhật cần được thực hiện bởi agent đang làm việc; file không tự đồng bộ với mọi cuộc hội thoại.
 
 ## 2. Mục tiêu và criteria của Assignment
+
+**Assignment requirements:** [`GUIDE.md`](GUIDE.md) defines the CO4031 assignment requirements, learning outcomes, deliverables, submission deadline and assessment checklist. This project plan translates those requirements into implementation tasks; consult the guide when changing scope or preparing the submission.
 
 Xây dựng hệ thống tích hợp dữ liệu giao thông và tai nạn để phân tích theo thời gian/địa bàn, hỗ trợ ưu tiên khảo sát và đầu tư hạ tầng đô thị.
 
@@ -353,5 +355,6 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.3.1 | 2026-10-10 | Ghi cấu hình máy Windows; chọn môi trường D12; sửa `check_env.ps1` (hypervisor, docker engine); thêm `check_db.ps1` | Output `check_env.ps1` do người dùng gửi; `check_db.ps1` chưa chạy |
 | 0.3.2 | 2026-10-10 | Container `healthy` trên máy người dùng; sửa lỗi quoting PowerShell 5.1 trong `check_db.ps1` | Output người dùng gửi; chạy end-to-end trên máy agent: healthy, PG 16.4, PostGIS 3.4.3, 14 bảng/view |
 | 0.3.3 | 2026-10-10 | S0 hoàn thành trên máy người dùng | Output `check_db.ps1` người dùng gửi: healthy, PG 16.4, PostGIS 3.4.3, `dw tables 14` |
+| 0.3.4 | 2026-10-10 | Reference GUIDE.md as the assignment requirements; restructure README into Description, How to use this source code and Citations | User request; `GUIDE.md`, `README.md` |
 
 Mẫu cập nhật cuối phiên: `Ngày — phiên bản — việc hoàn thành — file/log/test minh chứng — quyết định mới — blocker — bước tiếp theo`.
