@@ -2,15 +2,9 @@
 
 > Tài liệu bàn giao và kế hoạch sống của dự án. Agent tiếp quản phải đọc file này trước khi làm việc; cập nhật chính file này khi có thay đổi có ý nghĩa.
 
-<<<<<<< Updated upstream
-- Phiên bản: 0.3.3
-- Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
-- Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S4 chờ người dùng chốt phạm vi (S1) và bài toán (D08).
-=======
 - Phiên bản: 0.4.0
 - Cập nhật: 2026-10-10 (Asia/Bangkok, UTC+7)
 - Trạng thái: S2 và S3 (authority–year) xong, đối soát khớp raw; S3 spatial chưa làm (optional). S0 xong trên máy Windows của người dùng (Docker Desktop, PostgreSQL 16.4 + PostGIS 3.4.3 healthy, schema `dw` 14 bảng/view). S1 đã chốt London 2021–2025, Traffic Flow + Road Safety (D13); Baseline STATS19 đã nạp và đối soát trong container qua psql; host dashboard đã nối DB thật sau sửa authentication; host ETL `--load` chưa chạy lại. DSS safety v0.4.0 đã nối warehouse; S4 Traffic/London mart còn pending.
->>>>>>> Stashed changes
 - Repository: https://github.com/NhanNguyen-oss/Data-Warehouse
 - Người dùng: đang dùng Windows; muốn xây dựng Assignment có thể phát triển thành web.
 - Ngôn ngữ làm việc: tiếng Việt; giữ thuật ngữ kỹ thuật bằng tiếng Anh.
@@ -30,6 +24,8 @@
 Quy tắc phiên bản: patch cho cập nhật tiến độ; minor cho thay đổi thiết kế/phạm vi; major khi đổi hướng bài toán. Việc cập nhật cần được thực hiện bởi agent đang làm việc; file không tự đồng bộ với mọi cuộc hội thoại.
 
 ## 2. Mục tiêu và criteria của Assignment
+
+**Assignment requirements:** [`GUIDE.md`](GUIDE.md) defines the CO4031 assignment requirements, learning outcomes, deliverables, submission deadline and assessment checklist. This project plan translates those requirements into implementation tasks; consult the guide when changing scope or preparing the submission.
 
 Xây dựng hệ thống tích hợp dữ liệu giao thông và tai nạn để phân tích theo thời gian/địa bàn, hỗ trợ ưu tiên khảo sát và đầu tư hạ tầng đô thị.
 
@@ -52,18 +48,18 @@ DW phục vụ dữ liệu phân tích; dashboard trình bày kết quả; DSS b
 | Windows host + Docker Desktop (WSL2 backend), Python 3.13 venv | Đã áp dụng (D12) | Docker Compose v5.5.1 và WSL2 đã có; container chưa chạy thử |
 | Cần có web application về sau | Đã chốt bởi người dùng | Tách ETL khỏi notebook và API |
 | Một file kế hoạch được cập nhật liên tục | Đã chốt bởi người dùng | File này là bản bàn giao chính |
-| London, 2021–2025 | Phạm vi MVP đề xuất trước đó | Phụ thuộc năm chung và trạng thái bản phát hành; cần xác nhận |
+| London, 2021–2025 | Đã chốt bởi người dùng 2026-10-10 (D13) | MVP Traffic Flow + Road Safety; 33 London authorities; giữ raw toàn quốc |
 | VS Code + Git + Docker Compose | Đề xuất | Chưa cài đặt hoặc kiểm tra trên máy người dùng |
 | PostgreSQL/PostGIS + Python + FastAPI | Đề xuất | Chốt sau kiểm tra tài nguyên và yêu cầu triển khai |
 | React + Vite + ECharts + Leaflet | Đề xuất | Frontend cho dashboard và bản đồ |
-| DSS bằng MCDA, có thể thêm tối ưu ngân sách | Đề xuất | Ưu tiên mô hình giải thích được |
+| DSS bằng MCDA, có thể thêm tối ưu ngân sách | Đề xuất | Ưu tiên mô hình giải thích được; trọng số/công thức chưa chốt |
 | Tích hợp địa bàn–năm trước, spatial sau | Đề xuất | Spatial là mở rộng, không chặn MVP nếu thiếu dữ liệu |
 | Giữ cây `src/` theo GUIDE.md thay cho cây mục 10 | Đã áp dụng (D06) | Đề yêu cầu nộp `src/database`, `src/etl`, `src/frontend`, `src/dss` |
-| Bài toán trong README (KSI/100.000 dân theo highway authority) khác hướng B | **Mâu thuẫn, cần người dùng chốt** (D08) | README chốt 08/10; kế hoạch này ghi hướng B do người dùng chốt. Chưa sửa README |
+| Bài toán chính: Traffic Flow + Road Safety tại London | Đã chốt 2026-10-10 (D13); đóng D08 | Xếp hạng địa bàn bằng chỉ số tai nạn và lưu lượng; dân số và bài toán quỹ toàn quốc nằm ngoài MVP |
 
 ## 4. Business Problem và Business Questions
 
-**Business Problem đề xuất:** dữ liệu tai nạn và lưu lượng nằm ở các nguồn có grain khác nhau. Nhà quy hoạch cần một cách thống nhất để xem xu hướng, nhận diện địa bàn cần khảo sát và so sánh mức độ ưu tiên đầu tư, đồng thời thấy độ tin cậy và phạm vi bao phủ của dữ liệu.
+**Business Problem cho MVP đã chốt (D13):** dữ liệu tai nạn và lưu lượng nằm ở các nguồn có grain khác nhau. Nhà quy hoạch cần một cách thống nhất để xem xu hướng, nhận diện địa bàn cần khảo sát và so sánh mức độ ưu tiên đầu tư, đồng thời thấy độ tin cậy và phạm vi bao phủ của dữ liệu.
 
 Đối tượng sử dụng giả định: chuyên viên quy hoạch, phân tích giao thông và quản lý hạ tầng. Đây là mô hình học thuật, chưa được xác thực qua phỏng vấn stakeholder.
 
@@ -187,7 +183,7 @@ Phát hiện mới có ảnh hưởng thiết kế:
 | Đối soát với raw | Đạt | Collisions 513.801 = 513.801; AADF 111.465 = 111.465; LA traffic 1.033 = 1.033; Major vehicle-km AADF không vượt vehicle-km toàn mạng ở authority–year nào |
 | KPI đủ dữ liệu | Đạt một phần | Đủ cho collisions, severity, adjusted KSI, AADF điểm, estimated share. Rate chỉ ở dạng `candidate_*` |
 | Giới hạn exposure ghi rõ | Đạt | Mục Phương pháp và Giới hạn trong `RECONCILIATION.md` |
-| Phạm vi MVP được người dùng chốt | **Chưa** | London vs toàn quốc vẫn là đề xuất; PoC chạy toàn quốc, London là tập con |
+| Phạm vi MVP được người dùng chốt | Đạt 2026-10-10 | D13: London, 2021–2025; PoC toàn quốc có tập con London 33/33 |
 
 Mapping contract (D10): mã chuẩn là mã authority mà DfT Traffic dùng trong năm đó. Collision lấy `local_authority_highway` (mã lúc xảy ra vụ) rồi áp bảng ánh xạ: `EHEATHROW` → `E09000017`; `E08000038` → `E08000016` và `E08000039` → `E08000019` (Traffic vẫn dùng mã cũ của Barnsley/Sheffield). AADF có mã không hợp lệ trong năm lấy mã của cùng count point ở năm sau gần nhất (Cumbria 2023: 10 dòng; Northamptonshire 2021: 1 dòng). Cumbria 2021–2022 giữ `E10000006`, nên chuỗi thời gian gãy tại 2023; cần `dim_authority` có version history khi thiết kế S4.
 
@@ -296,21 +292,17 @@ Hạn chế phải đánh giá: under-reporting, annual granularity, coverage/bo
 |---|---|---|
 | P0 | Kiểm tra Windows version, tài nguyên, WSL2/Docker và công cụ đã có | Done 2026-10-10 — kết quả ở phiên 0.3.1 |
 | P0 | Container health check trên máy Windows | Done 2026-10-10 — `check_db.ps1` trên máy người dùng: healthy, PostgreSQL 16.4, PostGIS 3.4.3, `dw` 14 bảng/view |
-| P0 | Chốt phạm vi MVP London và năm sau kiểm tra metadata | Pending — chờ profiling và người dùng |
-| P0 | Chốt bài toán: README hay hướng B (D08) | Pending — cần người dùng |
+| P0 | Chốt phạm vi MVP London và năm sau kiểm tra metadata | Done 2026-10-10 — người dùng chọn London, 2021–2025 (D13) |
+| P0 | Chốt bài toán: README hay hướng B (D08) | Done 2026-10-10 — Traffic Flow + Road Safety (D13) |
 | P0 | Lấy đúng ba datasets, inventory và source manifest | Done 2026-10-10 — `data/manifest/source_manifest.json` |
 | P1 | Tạo repository và môi trường tái lập | Done 2026-10-10 — skeleton, manifest, Docker Compose chạy trên máy người dùng |
-| P1 | Nạp STATS19 vào container: `python src/etl/pipeline.py --load` từ `.venv` Python 3.13, đối chiếu số dòng `dw.*` với README | Pending — chưa chạy trên máy người dùng |
+| P1 | Nạp STATS19 vào container: `python src/etl/pipeline.py --load` từ `.venv` Python 3.13, đối chiếu số dòng `dw.*` với README | Baseline Done 2026-10-10 qua container psql; host `--load` lỗi authentication. Xem `reports/validation/STATS19_LOAD.md` |
 | P1 | Viết/run profiling | Done 2026-10-10 — `src/etl/profiling.py`, `reports/profiling/` |
 | P1 | Authority–year PoC kèm mapping contract | Done 2026-10-10 — `src/etl/authority_year.py`, `reports/poc/` |
-| P2 | Thiết kế DW S4: `fact_traffic_aadf`, `dim_count_point`, `dim_authority` (SCD2 cho Cumbria), `mart_authority_year`; ERD, dictionary, mapping nguồn–đích | Pending — gate đạt về dữ liệu; chờ người dùng chốt phạm vi và D08 |
+| P2 | Thiết kế DW S4: `fact_traffic_aadf`, `dim_count_point`, `dim_authority` (SCD2 cho Cumbria), `mart_authority_year`; ERD, dictionary, mapping nguồn–đích | Ready — D13 chốt London 2021–2025; dùng PoC làm bằng chứng thiết kế |
 | P2 | Quyết định có bật rate theo LA traffic (D07) | Pending — cần người dùng duyệt phương pháp |
 | P1 | Đối chiếu trạng thái provisional/final trên trang DfT | Pending |
-<<<<<<< Updated upstream
-| P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked về dữ liệu (profiling/PoC xong); còn chờ S1 |
-=======
 | P2 | Chốt KPI contract và grain, rồi thiết kế DW | Unblocked — D13 chốt phạm vi; DSS an toàn giao thông đặc tả tại `reports/validation/DSS.md`; Traffic/exposure còn pending |
->>>>>>> Stashed changes
 | P3 | Spatial PoC / link-level rate | Optional; cần geometry và mapping |
 
 **Phiên 0.3.0:** thêm `src/etl/authority_year.py` (stage S3, phần A+B) và `data/reference/authority_code_map.csv`. Chạy toàn quốc 2021–2025 trong 8,7 giây; mọi kiểm tra đối soát đạt (mục 7). Bằng chứng: 16 unittest qua (thêm 6 test cho mapping, aggregate, leap year, không fan-out).
@@ -334,11 +326,7 @@ Lần chạy `scripts\check_db.ps1` đầu tiên trên máy người dùng: `db 
 
 Quyết định D12: chạy Windows host + Docker Desktop (WSL2 backend) cho PostgreSQL/PostGIS; ETL và test chạy bằng Python 3.13 trong `.venv` trên Windows (mã chỉ dùng thư viện chuẩn và `pathlib`, không phụ thuộc hệ điều hành). Không cần cài distro Ubuntu trong WSL. Thêm `scripts/check_db.ps1` để hoàn tất S0.
 
-<<<<<<< Updated upstream
-Agent tiếp theo: (1) hỏi người dùng chốt D08 và phạm vi London/toàn quốc; (2) chạy thử `pipeline.py --load` vào container trên máy người dùng; (3) sau đó mới làm S4 (ERD, dictionary, DDL cho phần Traffic) dựa trên `reports/poc/`. Không bắt đầu xây frontend; không bật rate `candidate_*` khi chưa được duyệt.
-=======
 Agent tiếp theo: D13 đã chốt Traffic Flow + Road Safety tại London, 2021–2025. Baseline STATS19 đã nạp qua container psql, row count và aggregate khớp (xem `reports/validation/STATS19_LOAD.md`). Bước tiếp theo: S4 (ERD, dictionary, DDL cho phần Traffic và London mart) dựa trên `reports/poc/`; host `DW_DATABASE_URL` đã sửa ở v0.3.7; kiểm chứng lại host ETL khi tự động hóa load. Dashboard STATS19 đã được người dùng yêu cầu nối DB trong phiên 0.3.6; DSS an toàn giao thông đã tích hợp ở v0.4.0; Traffic mart chưa triển khai. Không bật rate `candidate_*` khi chưa được duyệt.
->>>>>>> Stashed changes
 
 Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
 
@@ -353,11 +341,12 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | D05 | 2026-10-09 | Chưa bật exposure-normalized rate nếu chưa kiểm chứng | Guardrail phương pháp; cần cùng coverage |
 | D06 | 2026-10-10 | Giữ cây `src/` của GUIDE.md, ánh xạ cây mục 10 vào đó | Áp dụng; đề yêu cầu cây nộp bài cố định |
 | D07 | 2026-10-10 | Thêm `local_authority_traffic.csv` làm ứng viên exposure toàn mạng đường | Đề xuất; chưa bật rate (giữ D05) |
-| D08 | 2026-10-10 | README (08/10) chốt bài toán KSI/100.000 dân; kế hoạch ghi hướng B | Mâu thuẫn mở, cần người dùng chọn hoặc gộp |
+| D08 | 2026-10-10 | README (08/10) chốt bài toán KSI/100.000 dân; kế hoạch ghi hướng B | Đã giải quyết bằng D13: chọn hướng B, London 2021–2025 |
 | D09 | 2026-10-10 | Mỗi tính năng một branch `cursor/*-b2a4` và một PR vào `main`; các PR xếp chồng, merge theo thứ tự | Người dùng yêu cầu |
 | D10 | 2026-10-10 | Mã authority chuẩn = mã DfT Traffic trong năm; collision dùng mã lúc xảy ra vụ + bảng ánh xạ; AADF dùng `count_point_later_code` | Áp dụng trong PoC; đối soát 0 dòng không ghép được |
 | D11 | 2026-10-10 | Không dùng cờ `collision_injury_based` làm chỉ báo; dùng số hiệu chỉnh | Bằng chứng: Met Police 2021–2024 |
 | D12 | 2026-10-10 | Windows host + Docker Desktop (WSL2 backend); Python 3.13 venv qua `py`; psql trong container | Áp dụng; `check_db.ps1` xác nhận trên máy người dùng 2026-10-10. Không cần cài PostgreSQL native |
+| D13 | 2026-10-10 | MVP Traffic Flow + Road Safety, London, 2021–2025 | Người dùng chọn rõ trong phiên này; đóng D08. Rate vẫn chưa bật; spatial tùy chọn; dữ liệu dân số ngoài MVP |
 
 ## 14. Changelog
 
@@ -370,6 +359,13 @@ Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm
 | 0.3.1 | 2026-10-10 | Ghi cấu hình máy Windows; chọn môi trường D12; sửa `check_env.ps1` (hypervisor, docker engine); thêm `check_db.ps1` | Output `check_env.ps1` do người dùng gửi; `check_db.ps1` chưa chạy |
 | 0.3.2 | 2026-10-10 | Container `healthy` trên máy người dùng; sửa lỗi quoting PowerShell 5.1 trong `check_db.ps1` | Output người dùng gửi; chạy end-to-end trên máy agent: healthy, PG 16.4, PostGIS 3.4.3, 14 bảng/view |
 | 0.3.3 | 2026-10-10 | S0 hoàn thành trên máy người dùng | Output `check_db.ps1` người dùng gửi: healthy, PG 16.4, PostGIS 3.4.3, `dw tables 14` |
+| 0.3.4 | 2026-10-10 | Reference GUIDE.md as the assignment requirements; restructure README into Description, How to use this source code and Citations | User request; `GUIDE.md`, `README.md` |
+
+| 0.3.5 | 2026-10-10 | Chốt MVP London 2021–2025, Traffic Flow + Road Safety (D13), đóng D08; đồng bộ README; tạo Python 3.13 venv và kiểm chứng CSV ETL | Người dùng chọn phạm vi; 16 unittest pass; ETL CSV 513.801 vụ / 937.265 xe / 652.821 nạn nhân, đối soát khớp; database đã COMMIT qua container psql; `src/database/verify_load.sql` tất cả kiểm tra đạt; `reports/validation/STATS19_LOAD.md` |
+
+| 0.3.6 | 2026-10-10 | Dashboard PostgreSQL cho London: aggregate riêng collision/casualty, bộ lọc năm/địa bàn, CSV; đọc DW_DATABASE_URL từ environment hoặc .env; báo lỗi không lộ secret | 22 unittest pass; SQL container: 1.980 groups, 33 authorities, 111.454 collisions, 128.035 casualties, 486 fatalities, 0 missing adjustment. Host URL hiện vẫn lỗi; chờ người dùng đồng bộ cấu hình với kết nối đã thành công |
+
+| 0.3.7 | 2026-10-10 | Sửa authentication: đồng bộ role password theo cấu hình container, cập nhật URL trong .env không commit; người dùng xác nhận DBeaver với dw/road_safety_dw; dashboard Windows nối DB thật | 23 tests pass; host query 1.980 groups; live AppTest: 111.454 collisions, 128.035 casualties, 486 fatalities, KSI 18.981,9; HTTP localhost:8501 trả 200. Docker-dashboard build thử đã dừng, cấu hình thử được gỡ |
 
 | 0.4.0 | 2026-10-10 | DSS an toàn giao thông từ warehouse: MCDA 3 tiêu chí, weights/threshold/top N, đóng góp, what-if, CLI và CSV; loại missing/zero denominator, ties/constants; không bật exposure | 35 tests pass; live AppTest: 33 eligible, Westminster đầu mặc định, City of London đầu trend-only, 32 đổi rank; `reports/validation/DSS.md` |
 

@@ -1,104 +1,42 @@
-"""
-CO4031 | Khung dashboard truy vấn kho dữ liệu.
-
-Cài và chạy:
-    pip install streamlit pandas
-    streamlit run src/frontend/app.py
-
-Việc nhóm phải thay:
-    - get_connection(): kết nối đúng CSDL đang chứa schema dw.
-    - load_facts(): SELECT từ dw.fact_event JOIN các dimension.
-    - Bộ lọc sidebar và biểu đồ theo KPI đã chốt ở giai đoạn phân tích.
-"""
-
+﻿"""London road safety dashboard: streamlit run src/frontend/app.py."""
 from __future__ import annotations
-
-from decimal import Decimal
-
 import pandas as pd
+import psycopg
 import streamlit as st
-<<<<<<< Updated upstream
-=======
 from warehouse import DatabaseConfigurationError, load_monthly_facts
 from dss_panel import render_dss
->>>>>>> Stashed changes
 
-# Dữ liệu minh họa, cùng hạt với data/processed/fact_event.csv do ETL tạo ra.
-DEMO_FACTS = pd.DataFrame(
-    [
-        {"year": 2026, "quarter": 1, "segment": "A", "amount": 200.50, "quantity": 3},
-        {"year": 2026, "quarter": 1, "segment": "B", "amount": 90.00, "quantity": 1},
-        {"year": 2026, "quarter": 2, "segment": "A", "amount": 150.00, "quantity": 4},
-        {"year": 2025, "quarter": 4, "segment": "B", "amount": 70.00, "quantity": 2},
-    ]
-)
+@st.cache_data(ttl=60, show_spinner=False)
+def load_facts():
+    return pd.DataFrame(load_monthly_facts())
 
-
-def get_connection():
-    """TODO: trả về kết nối CSDL. Đọc chuỗi kết nối từ biến môi trường, không hard-code mật khẩu."""
-    return None
-
-
-@st.cache_data(show_spinner=False)
-def load_facts() -> pd.DataFrame:
-    """
-    TODO: thay DEMO_FACTS bằng kết quả OLAP, ví dụ:
-
-        SELECT d.year, d.quarter, e.segment,
-               SUM(f.amount) AS amount,
-               SUM(f.quantity) AS quantity
-        FROM dw.fact_event f
-        JOIN dw.dim_date d ON d.date_key = f.date_key
-        JOIN dw.dim_entity e ON e.entity_key = f.entity_key
-        GROUP BY d.year, d.quarter, e.segment
-    """
-    if get_connection() is None:
-        return DEMO_FACTS.copy()
-    raise NotImplementedError("Viết truy vấn OLAP tại đây sau khi đã có kết nối.")
-
-
-def main() -> None:
-    st.set_page_config(page_title="CO4031 Dashboard", layout="wide")
-    st.title("Dashboard kho dữ liệu")
-    st.caption("Khung giao diện. Đang hiển thị dữ liệu demo cho đến khi nối được CSDL.")
-
-    facts = load_facts()
-    years = sorted(facts["year"].unique())
-    segments = sorted(facts["segment"].unique())
-
+def main():
+    st.set_page_config(page_title="London Road Safety", layout="wide")
+    st.title("London · Road Safety")
+    st.caption("PostgreSQL warehouse · STATS19 · 2021–2025 · London")
     with st.sidebar:
-        st.header("Bộ lọc")
-        selected_years = st.multiselect("Năm", years, default=years)
-        selected_segments = st.multiselect("Phân khúc", segments, default=segments)
-
-    view = facts[
-        facts["year"].isin(selected_years) & facts["segment"].isin(selected_segments)
-    ]
+        st.header("Filters")
+        if st.button("Refresh data"):
+            load_facts.clear()
+    try:
+        with st.spinner("Querying warehouse…"):
+            facts = load_facts()
+    except (DatabaseConfigurationError, psycopg.Error):
+        st.error("Cannot read the warehouse. Check DW_DATABASE_URL in the project .env, "
+                 "Docker Desktop, and the dw schema. No demo data is shown.")
+        st.stop()
+    if facts.empty:
+        st.warning("No London data for 2021–2025. Check the STATS19 load.")
+        st.stop()
+    with st.sidebar:
+        years = sorted(facts.year.unique().tolist())
+        selected_years = st.multiselect("Years", years, default=years)
+        labels = facts.set_index("authority_code").authority_name.to_dict()
+        authorities = sorted(labels)
+        selected_authorities = st.multiselect("Authorities", authorities, default=authorities,
+            format_func=lambda code: f"{labels[code]} ({code})")
+    view = facts[facts.year.isin(selected_years) & facts.authority_code.isin(selected_authorities)]
     if view.empty:
-<<<<<<< Updated upstream
-        st.warning("Không có dòng nào khớp bộ lọc.")
-        return
-
-    total_amount = Decimal(str(view["amount"].sum()))
-    total_quantity = Decimal(str(view["quantity"].sum()))
-    col_amount, col_quantity, col_rows = st.columns(3)
-    col_amount.metric("Tổng giá trị", f"{total_amount:,.2f}")
-    col_quantity.metric("Tổng số lượng", f"{total_quantity:,.0f}")
-    col_rows.metric("Số nhóm", f"{len(view)}")
-
-    by_period = (
-        view.groupby(["year", "quarter"], as_index=False)["amount"]
-        .sum()
-        .sort_values(["year", "quarter"])
-    )
-    by_period["period"] = by_period["year"].astype(str) + "-Q" + by_period["quarter"].astype(str)
-    st.subheader("Giá trị theo quý")
-    st.bar_chart(by_period.set_index("period")["amount"])
-
-    st.subheader("Chi tiết đã lọc")
-    st.dataframe(view, use_container_width=True)
-
-=======
         st.info("Select at least one year and authority with data.")
         st.stop()
     missing = int(view.adjustment_missing.sum())
@@ -124,7 +62,6 @@ def main() -> None:
     st.caption("Heathrow is included in Hillingdon. Collision and casualty facts are aggregated "
                "separately before joining. Traffic integration is pending.")
     render_dss(view, selected_years)
->>>>>>> Stashed changes
 
 if __name__ == "__main__":
     main()

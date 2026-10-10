@@ -45,7 +45,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_database_failure_has_no_demo_or_secret(self):
         with patch.object(warehouse, "load_monthly_facts", side_effect=psycopg.OperationalError("secret-password")):
-            app = AppTest.from_file(str(APP)).run()
+            app = AppTest.from_file(str(APP), default_timeout=10).run()
         self.assertFalse(app.exception)
         self.assertEqual(len(app.error), 1)
         self.assertNotIn("secret-password", app.error[0].value)
@@ -57,7 +57,7 @@ class DashboardTests(unittest.TestCase):
                      fatalities=1, ksi_adjusted=3.5, adjustment_missing=0)
                 for year, count in [(2024, 10), (2025, 20)]]
         with patch.object(warehouse, "load_monthly_facts", return_value=rows):
-            app = AppTest.from_file(str(APP)).run()
+            app = AppTest.from_file(str(APP), default_timeout=10).run()
             self.assertFalse(app.exception)
             self.assertEqual(app.metric[0].value, "30")
             app.multiselect[0].set_value([2025]).run()
@@ -73,14 +73,14 @@ class DashboardTests(unittest.TestCase):
                      authority_name="Hillingdon", collisions=1, casualties=2,
                      fatalities=0, ksi_adjusted=0., adjustment_missing=2)]
         with patch.object(warehouse, "load_monthly_facts", return_value=rows):
-            app = AppTest.from_file(str(APP)).run()
+            app = AppTest.from_file(str(APP), default_timeout=10).run()
         self.assertFalse(app.exception)
         self.assertEqual(app.metric[3].value, "Incomplete")
 
     def test_dss_weights_and_threshold_change_recommendations(self):
         from test_dss import monthly_rows
         with patch.object(warehouse, 'load_monthly_facts', return_value=monthly_rows()):
-            app = AppTest.from_file(str(APP)).run()
+            app = AppTest.from_file(str(APP), default_timeout=10).run()
             self.assertFalse(app.exception)
             self.assertEqual(app.dataframe[1].value.iloc[0].authority_code, 'E09000001')
             next(s for s in app.slider if s.key == 'dss_threshold').set_value(.95)
@@ -101,7 +101,7 @@ class DashboardTests(unittest.TestCase):
     def test_dss_single_year_disables_trend(self):
         from test_dss import monthly_rows
         with patch.object(warehouse, 'load_monthly_facts', return_value=monthly_rows()):
-            app = AppTest.from_file(str(APP)).run()
+            app = AppTest.from_file(str(APP), default_timeout=10).run()
             app.multiselect[0].set_value([2025]).run()
             self.assertFalse(app.exception)
             slider = next(s for s in app.slider if s.key == 'dss_weight_ksi_change_pct_single')
