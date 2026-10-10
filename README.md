@@ -1,31 +1,32 @@
 # Kho dữ liệu và Hệ hỗ trợ Quyết định về an toàn giao thông đường bộ (STATS19, Anh 2021–2025)
 
+## Description
+
 Bài tập lớn môn **Kho dữ liệu và Hệ hỗ trợ Quyết định** (CO4031), học kỳ 261, năm học 2026–2027.
 Giảng viên: Đỗ Thanh Thái. Hạn nộp: **23:59 ngày 15/11/2026**.
 
 Lộ trình chi tiết, yêu cầu của đề và checklist nộp bài nằm trong [`GUIDE.md`](GUIDE.md).
 
-## Thành viên
+### Thành viên
 
 | Họ tên | MSSV | Vai trò chính |
 | --- | --- | --- |
-| _(điền)_ | _(điền)_ | Thiết kế kho dữ liệu |
-| _(điền)_ | _(điền)_ | Kỹ sư dữ liệu (ETL) |
-| _(điền)_ | _(điền)_ | Frontend và DSS |
+| Vo Dinh Tri | 2313632 | Thiết kế kho dữ liệu, FE, DSS |
+| Nguyen Chi Nhan | 2312430 | Kỹ sư dữ liệu (ETL), DSS |
 
-## Bài toán
+### Bài toán
 
 > **Bộ Giao thông Anh (DfT) cần chọn 10 cơ quan quản lý đường bộ (highway authority) được ưu tiên nhận quỹ an toàn giao thông năm 2027, dựa trên số người chết hoặc bị thương nặng (KSI) đã hiệu chỉnh trên 100.000 dân, xu hướng KSI, tỷ lệ nạn nhân dễ tổn thương và tỷ lệ KSI trên đường tốc độ cao, với số liệu giai đoạn 2021–2025.**
 
 Đã chốt ngày 08/10/2026. Hướng chính là xếp hạng địa bàn để phân bổ ngân sách. Hai hướng phụ được lồng vào bộ tiêu chí: nhóm người tham gia giao thông dễ tổn thương, và hạ tầng đường tốc độ cao.
 
-### Phương án
+#### Phương án
 
 - Mỗi phương án là một **highway authority** (cột `local_authority_highway_current`), không phải quận ONS. Ở Anh, ngân sách đường bộ do cấp này nắm: county council, unitary authority, metropolitan district, London borough, council area của Scotland và xứ Wales.
 - Giai đoạn 2023–2025 có 207 đơn vị. Mã đặc biệt `EHEATHROW` (sân bay Heathrow) được gộp vào Hillingdon (`E09000017`).
 - Địa giới thay đổi trong giai đoạn dữ liệu (Cumbria tách thành Cumberland và Westmorland and Furness năm 2023; Sheffield và Barnsley đổi mã) được quản lý bằng SCD Type 2. Nhờ vậy, số liệu cũ được quy về đúng đơn vị hiện hành.
 
-### KPI trên dashboard
+#### KPI trên dashboard
 
 1. KSI hiệu chỉnh theo năm, roll-up từ LSOA lên highway authority, lên vùng và quốc gia (Anh, Scotland, xứ Wales).
 2. KSI hiệu chỉnh trên 100.000 dân theo highway authority: bảng xếp hạng và bản đồ.
@@ -35,7 +36,7 @@ Lộ trình chi tiết, yêu cầu của đề và checklist nộp bài nằm tr
 
 KSI tính ở mức nạn nhân (`fact_casualty`): `KSI hiệu chỉnh = SUM(fatal_count) + SUM(adjusted_serious)`.
 
-### Mô hình DSS
+#### Mô hình DSS
 
 | Tiêu chí | Cách tính từ xũkho | Trọng số | Lý do nghiệp vụ |
 | --- | --- | --- | --- |
@@ -51,17 +52,17 @@ Cả bốn tiêu chí đều theo nguyên tắc giá trị càng cao càng đư�
 - **Choice:** chọn 10 đơn vị điểm cao nhất, kèm câu giải thích tiêu chí nào đóng góp nhiều nhất.
 - **What-if:** tăng trọng số xu hướng từ 0,20 lên 0,40, hoặc dùng KSI gốc thay cho KSI hiệu chỉnh, rồi xem danh sách top 10 thay đổi thế nào.
 
-### Đánh giá
+#### Đánh giá
 
 - **Kiểm tra ngược:** chạy DSS chỉ trên số liệu 2021–2023, rồi xem 10 đơn vị được chọn có tiếp tục thuộc nhóm KSI cao trong 2024–2025 không. Cách này kiểm tra luôn hiện tượng hồi quy về trung bình.
 - **Tình huống xứ Wales:** so sánh tổng số vụ và KSI trên đường 20 và 30 mph trước và sau tháng 9/2023 (riêng số vụ: 1.843 năm 2021 xuống 1.488 năm 2025). Cần lưu ý số vụ ở đường 20 mph tăng phần lớn do đường được đổi nhãn.
 
-### Dữ liệu bổ sung cần ghép
+#### Dữ liệu bổ sung cần ghép
 
 - **Dân số giữa năm theo địa bàn** (ONS mid-year population estimates, Open Government Licence), ở cấp county và unitary authority, cho các năm 2021–2025.
 - Nếu còn thời gian: lưu lượng xe theo địa bàn (DfT road traffic statistics) để tính thêm KSI trên một tỷ dặm xe chạy.
 
-## Dữ liệu
+### Dữ liệu
 
 - **Nguồn:** [Road safety open data](https://www.gov.uk/government/statistical-data-sets/road-safety-open-data) của Bộ Giao thông Anh (Department for Transport, DfT), hệ thống ghi nhận STATS19. Dùng bộ "last 5 years", bản dữ liệu chính thức cho năm 2025.
 - **Giấy phép:** Open Government Licence v3.0. Được phép dùng lại, kể cả cho mục đích học tập, nếu ghi nguồn.
@@ -78,7 +79,7 @@ Các file trong `data/raw/`:
 
 Ba bảng nối với nhau qua `collision_index`. Bảng xe và bảng nạn nhân nối thêm qua `vehicle_reference`.
 
-### Đặc điểm dữ liệu và cách ETL xử lý
+#### Đặc điểm dữ liệu và cách ETL xử lý
 
 - **Liên kết sạch.** Không có xe hay nạn nhân nào trỏ tới vụ không tồn tại, và không có khóa trùng. Cột `number_of_vehicles` và `number_of_casualties` khớp 100% với số dòng chi tiết. ETL dùng hai cột này để đối soát sau mỗi lần chạy.
 - **Dữ liệu dạng mã số.** Ví dụ `weather_conditions = 2`. ETL đọc file tra mã chính thức để ghi kèm nhãn (`Raining no high winds`) vào cột `<tên cột>_label` của dimension.
@@ -88,7 +89,7 @@ Ba bảng nối với nhau qua `collision_index`. Bảng xe và bảng nạn nh�
 - **Mã mới chưa có trong file tra mã 2025.** Gồm 7 mã quận huyện sau tái cơ cấu hành chính (E06000063–E06000066, E08000038, E08000039, E07000246) và `casualty_type = 33`, mã DfT thêm vào bản sửa đổi tháng 9/2026. Các dòng này có nhãn `Code ... (not in data guide)`. Cần bổ sung nhãn khi DfT phát hành file tra mã mới.
 - **Mức độ thiếu dữ liệu.** Thiếu nhiều ở `generic_make_model`, `age_of_vehicle`, `engine_capacity_cc` và `driver_distance_banding`. Không nên dùng các cột này làm tiêu chí chính của DSS.
 
-## Mô hình kho dữ liệu
+### Mô hình kho dữ liệu
 
 Kho dùng mô hình fact constellation: ba star schema dùng chung các dimension. Chi tiết nằm trong `src/database/schema.sql`.
 
@@ -103,7 +104,7 @@ Các dimension riêng: `dim_vehicle`, `dim_driver`, `dim_vehicle_action`, `dim_c
 
 View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KSI hiệu chỉnh theo quận ONS và năm. Đầu vào của DSS sẽ là một view mới ở cấp highway authority (xem mục Việc còn mở).
 
-## Cấu trúc thư mục
+### Cấu trúc thư mục
 
 ```text
 .
@@ -136,7 +137,46 @@ View `dw.v_local_authority_year` tổng hợp số vụ, số nạn nhân và KS
     └── dss/model.py           # mô hình hỗ trợ quyết định
 ```
 
-## Cài đặt và chạy
+### Trạng thái
+
+Cập nhật ngày 08/10/2026.
+
+`schema.sql` và `pipeline.py` đã viết theo dữ liệu STATS19. `frontend/app.py` và `dss/model.py` vẫn là khung mẫu và đang chạy trên dữ liệu demo.
+
+| Giai đoạn | Nội dung | Hạn | Trạng thái |
+| --- | --- | --- | --- |
+| 1 | Chốt bài toán, KPI, nguồn dữ liệu | 04/10 | Xong ngày 08/10 (trễ 4 ngày). Còn thiếu mục 1 của báo cáo và nguồn dân số ONS |
+| 2 | Schema và ETL | 25/10 | ETL chạy đủ 5 năm ra CSV trong khoảng 1 phút, không loại dòng nào, đối soát khớp. Chưa chạy thử `schema.sql` và `--load` trên PostgreSQL. Chưa có SCD |
+| 3 | CSDL, OLAP, dashboard | 01/11 | Đã có view `v_local_authority_year` và 5 truy vấn OLAP mẫu (chưa chạy). Dashboard chưa làm |
+| 4 | DSS trên số liệu của kho | 08/11 | Chưa bắt đầu |
+| 5 | Đánh giá, hạn chế, hướng phát triển | 12/11 | Chưa bắt đầu |
+| 6 | Báo cáo, slide, ZIP, nộp LMS | 15/11 | Chưa bắt đầu |
+
+Kết quả lần chạy ETL đủ 5 năm (kiểm tra lại ngày 08/10):
+
+| Bảng | Số dòng |
+| --- | --- |
+| `fact_collision` / `fact_vehicle` / `fact_casualty` | 513.801 / 937.265 / 652.821 |
+| `dim_location` / `dim_vehicle_action` / `dim_road` / `dim_casualty` | 45.751 / 28.345 / 22.162 / 20.280 |
+| `dim_vehicle` / `dim_driver` / `dim_conditions` | 3.002 / 2.073 / 1.949 |
+| `dim_date` / `dim_time` / `dim_severity` | 1.826 / 1.441 / 3 |
+
+#### Việc còn mở
+
+1. **Viết mục 1 của báo cáo** từ phần Bài toán ở trên: bối cảnh, người ra quyết định, KPI, nguồn dữ liệu, danh sách cột nguồn.
+2. **Tải dân số ONS** (mid-year population estimates 2021–2025, cấp county và unitary authority) vào `data/raw/`, rồi đối chiếu mã với `local_authority_highway_current`.
+3. **Bổ sung SCD Type 2 cho highway authority.** Chuẩn đầu ra L.O.2 yêu cầu SCD, nhưng schema hiện chưa có. Thêm bảng `dim_highway_authority` có `effective_from`, `effective_to`, `is_current`, và sửa ETL để đọc thêm cột `local_authority_highway_current` (hiện `dim_location` chỉ lưu mã tại thời điểm xảy ra vụ). Các thay đổi có thật: Cumbria (`E10000006`) tách thành Cumberland (`E06000063`) và Westmorland and Furness (`E06000064`) từ năm 2023; Sheffield (`E08000019` sang `E08000039`) và Barnsley (`E08000016` sang `E08000038`) đổi mã. Khoảng 1.500 dòng lệch lẻ giữa các quận London giống sửa lỗi hơn là đổi địa giới, cần lọc riêng.
+4. **Thêm fact dân số** dạng periodic snapshot (một dòng là một highway authority trong một năm). Đây là measure semi-additive: cộng được theo địa bàn, không cộng theo năm.
+5. **Viết lại view đầu vào cho DSS** ở cấp highway authority và mức nạn nhân, thay cho `v_local_authority_year` (đang ở cấp quận ONS, mức vụ va chạm và xếp theo số tuyệt đối). View mới tính sẵn bốn tiêu chí trong bảng Mô hình DSS.
+6. **Cài PostgreSQL**, chạy `schema.sql`, rồi chạy `python src/etl/pipeline.py --load`. Kiểm tra số dòng trong `dw.*` khớp với bảng trên và chạy thử các truy vấn OLAP mẫu.
+7. **Sửa `src/dss/model.py`** để chọn top 10 thay vì một phương án, đọc từ view mới, và in câu giải thích theo tiêu chí.
+8. **Viết dashboard** (`src/frontend/app.py`) theo 5 KPI ở trên.
+9. **Luôn dùng KSI hiệu chỉnh khi so sánh giữa các năm.** Tỷ lệ vụ được ghi theo hệ thống dựa trên thương tích tăng từ 49,6% (2021) lên 86,5% (2025). KSI gốc tăng 17% trong giai đoạn này, KSI hiệu chỉnh chỉ tăng 12,7%.
+10. **Chuẩn bị dữ liệu nộp bài.** Ba file nguồn tổng cộng khoảng 257 MB, riêng file vehicle 104,7 MB (sát giới hạn 100 MiB mỗi file của GitHub). Nên để bản trích (ví dụ năm 2025) trong `data/` và ghi link nguồn DfT trong báo cáo.
+
+## How to use this source code
+
+### Cài đặt và chạy
 
 Cần Python 3.10 trở lên và PostgreSQL 13 trở lên. Bản thân ETL chỉ dùng thư viện chuẩn. Thư viện `psycopg` chỉ cần khi nạp vào CSDL.
 
@@ -198,39 +238,10 @@ python src/dss/model.py
 
 Mỗi lần chạy `--load`, ETL xóa dữ liệu cũ trong các bảng `dw.*` rồi nạp lại toàn bộ trong một transaction. Chuỗi kết nối đọc từ biến môi trường, không ghi mật khẩu vào mã nguồn. File `.env` đã có trong `.gitignore`.
 
-## Trạng thái
 
-Cập nhật ngày 08/10/2026.
+## Citations
 
-`schema.sql` và `pipeline.py` đã viết theo dữ liệu STATS19. `frontend/app.py` và `dss/model.py` vẫn là khung mẫu và đang chạy trên dữ liệu demo.
-
-| Giai đoạn | Nội dung | Hạn | Trạng thái |
-| --- | --- | --- | --- |
-| 1 | Chốt bài toán, KPI, nguồn dữ liệu | 04/10 | Xong ngày 08/10 (trễ 4 ngày). Còn thiếu mục 1 của báo cáo và nguồn dân số ONS |
-| 2 | Schema và ETL | 25/10 | ETL chạy đủ 5 năm ra CSV trong khoảng 1 phút, không loại dòng nào, đối soát khớp. Chưa chạy thử `schema.sql` và `--load` trên PostgreSQL. Chưa có SCD |
-| 3 | CSDL, OLAP, dashboard | 01/11 | Đã có view `v_local_authority_year` và 5 truy vấn OLAP mẫu (chưa chạy). Dashboard chưa làm |
-| 4 | DSS trên số liệu của kho | 08/11 | Chưa bắt đầu |
-| 5 | Đánh giá, hạn chế, hướng phát triển | 12/11 | Chưa bắt đầu |
-| 6 | Báo cáo, slide, ZIP, nộp LMS | 15/11 | Chưa bắt đầu |
-
-Kết quả lần chạy ETL đủ 5 năm (kiểm tra lại ngày 08/10):
-
-| Bảng | Số dòng |
-| --- | --- |
-| `fact_collision` / `fact_vehicle` / `fact_casualty` | 513.801 / 937.265 / 652.821 |
-| `dim_location` / `dim_vehicle_action` / `dim_road` / `dim_casualty` | 45.751 / 28.345 / 22.162 / 20.280 |
-| `dim_vehicle` / `dim_driver` / `dim_conditions` | 3.002 / 2.073 / 1.949 |
-| `dim_date` / `dim_time` / `dim_severity` | 1.826 / 1.441 / 3 |
-
-### Việc còn mở
-
-1. **Viết mục 1 của báo cáo** từ phần Bài toán ở trên: bối cảnh, người ra quyết định, KPI, nguồn dữ liệu, danh sách cột nguồn.
-2. **Tải dân số ONS** (mid-year population estimates 2021–2025, cấp county và unitary authority) vào `data/raw/`, rồi đối chiếu mã với `local_authority_highway_current`.
-3. **Bổ sung SCD Type 2 cho highway authority.** Chuẩn đầu ra L.O.2 yêu cầu SCD, nhưng schema hiện chưa có. Thêm bảng `dim_highway_authority` có `effective_from`, `effective_to`, `is_current`, và sửa ETL để đọc thêm cột `local_authority_highway_current` (hiện `dim_location` chỉ lưu mã tại thời điểm xảy ra vụ). Các thay đổi có thật: Cumbria (`E10000006`) tách thành Cumberland (`E06000063`) và Westmorland and Furness (`E06000064`) từ năm 2023; Sheffield (`E08000019` sang `E08000039`) và Barnsley (`E08000016` sang `E08000038`) đổi mã. Khoảng 1.500 dòng lệch lẻ giữa các quận London giống sửa lỗi hơn là đổi địa giới, cần lọc riêng.
-4. **Thêm fact dân số** dạng periodic snapshot (một dòng là một highway authority trong một năm). Đây là measure semi-additive: cộng được theo địa bàn, không cộng theo năm.
-5. **Viết lại view đầu vào cho DSS** ở cấp highway authority và mức nạn nhân, thay cho `v_local_authority_year` (đang ở cấp quận ONS, mức vụ va chạm và xếp theo số tuyệt đối). View mới tính sẵn bốn tiêu chí trong bảng Mô hình DSS.
-6. **Cài PostgreSQL**, chạy `schema.sql`, rồi chạy `python src/etl/pipeline.py --load`. Kiểm tra số dòng trong `dw.*` khớp với bảng trên và chạy thử các truy vấn OLAP mẫu.
-7. **Sửa `src/dss/model.py`** để chọn top 10 thay vì một phương án, đọc từ view mới, và in câu giải thích theo tiêu chí.
-8. **Viết dashboard** (`src/frontend/app.py`) theo 5 KPI ở trên.
-9. **Luôn dùng KSI hiệu chỉnh khi so sánh giữa các năm.** Tỷ lệ vụ được ghi theo hệ thống dựa trên thương tích tăng từ 49,6% (2021) lên 86,5% (2025). KSI gốc tăng 17% trong giai đoạn này, KSI hiệu chỉnh chỉ tăng 12,7%.
-10. **Chuẩn bị dữ liệu nộp bài.** Ba file nguồn tổng cộng khoảng 257 MB, riêng file vehicle 104,7 MB (sát giới hạn 100 MiB mỗi file của GitHub). Nên để bản trích (ví dụ năm 2025) trong `data/` và ghi link nguồn DfT trong báo cáo.
+- **Assignment requirements:** [CO4031 assignment guide](GUIDE.md), semester 261, academic year 2026-2027.
+- **STATS19 data and codebook:** Department for Transport, [Road safety open data](https://www.gov.uk/government/statistical-data-sets/road-safety-open-data).
+- **Traffic data:** Department for Transport, [Road traffic statistics downloads](https://roadtraffic.dft.gov.uk/downloads). Source definitions: [`src/etl/sources.py`](src/etl/sources.py). File versions and checksums: [`data/manifest/source_manifest.json`](data/manifest/source_manifest.json).
+- **Data licence:** [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). Attribute Department for Transport when reusing its data.
