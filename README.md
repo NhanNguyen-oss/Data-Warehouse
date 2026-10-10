@@ -1,4 +1,4 @@
-# Kho dữ liệu và Hệ hỗ trợ Quyết định về an toàn giao thông đường bộ (STATS19, Anh 2021–2025)
+# Traffic Flow & Road Safety DW/DSS — London, 2021–2025
 
 ## Description
 
@@ -14,53 +14,21 @@ Lộ trình chi tiết, yêu cầu của đề và checklist nộp bài nằm tr
 | Vo Dinh Tri | 2313632 | Thiết kế kho dữ liệu, FE, DSS |
 | Nguyen Chi Nhan | 2312430 | Kỹ sư dữ liệu (ETL), DSS |
 
-### Bài toán
+### Bài toán và phạm vi MVP
 
-> **Bộ Giao thông Anh (DfT) cần chọn 10 cơ quan quản lý đường bộ (highway authority) được ưu tiên nhận quỹ an toàn giao thông năm 2027, dựa trên số người chết hoặc bị thương nặng (KSI) đã hiệu chỉnh trên 100.000 dân, xu hướng KSI, tỷ lệ nạn nhân dễ tổn thương và tỷ lệ KSI trên đường tốc độ cao, với số liệu giai đoạn 2021–2025.**
+**Traffic Flow + Road Safety tại London, giai đoạn 2021–2025**, được người dùng chốt ngày 10/10/2026. Hệ thống tích hợp STATS19 và DfT Traffic Counts để phân tích xu hướng tai nạn và lưu lượng, hỗ trợ chuyên viên quy hoạch so sánh mức độ ưu tiên khảo sát hoặc đầu tư theo địa bàn.
 
-Đã chốt ngày 08/10/2026. Hướng chính là xếp hạng địa bàn để phân bổ ngân sách. Hai hướng phụ được lồng vào bộ tiêu chí: nhóm người tham gia giao thông dễ tổn thương, và hạ tầng đường tốc độ cao.
+- Phạm vi phân tích: 33 London authorities; dữ liệu raw toàn quốc được giữ để truy vết và tái lập.
+- Hai nguồn được tổng hợp riêng về authority–year trước khi kết hợp, tránh nhân bản số liệu.
+- KPI chính: số vụ, mức độ nghiêm trọng và số hiệu chỉnh, số nạn nhân, AADF tại điểm, tăng trưởng trên tập điểm chung và tỷ lệ bản ghi ước tính.
+- DSS dự kiến xếp hạng địa bàn, cho đổi trọng số và giải thích điểm. Công thức và trọng số sẽ được đặc tả ở bước thiết kế.
+- Rate trên vehicle-km chưa bật; spatial/link-level analysis là phần mở rộng. Dân số ONS và bài toán chọn 10 địa bàn nhận quỹ toàn quốc nằm ngoài MVP đã chốt.
 
-#### Phương án
+Xem [`PROJECT_PLAN.md`](PROJECT_PLAN.md) để biết KPI contract, giới hạn phương pháp, quyết định D13 và tiến độ hiện tại. Các mục trạng thái ngày 08/10 bên dưới là lịch sử trước khi chốt MVP này.
 
-- Mỗi phương án là một **highway authority** (cột `local_authority_highway_current`), không phải quận ONS. Ở Anh, ngân sách đường bộ do cấp này nắm: county council, unitary authority, metropolitan district, London borough, council area của Scotland và xứ Wales.
-- Giai đoạn 2023–2025 có 207 đơn vị. Mã đặc biệt `EHEATHROW` (sân bay Heathrow) được gộp vào Hillingdon (`E09000017`).
-- Địa giới thay đổi trong giai đoạn dữ liệu (Cumbria tách thành Cumberland và Westmorland and Furness năm 2023; Sheffield và Barnsley đổi mã) được quản lý bằng SCD Type 2. Nhờ vậy, số liệu cũ được quy về đúng đơn vị hiện hành.
+### Kiểm chứng backend hiện tại
 
-#### KPI trên dashboard
-
-1. KSI hiệu chỉnh theo năm, roll-up từ LSOA lên highway authority, lên vùng và quốc gia (Anh, Scotland, xứ Wales).
-2. KSI hiệu chỉnh trên 100.000 dân theo highway authority: bảng xếp hạng và bản đồ.
-3. Cơ cấu KSI theo nhóm người tham gia giao thông: đi bộ, xe đạp, xe máy, e-scooter, ô tô.
-4. Mức độ nghiêm trọng theo giới hạn tốc độ và loại đường, kèm tình huống xứ Wales hạ giới hạn mặc định xuống 20 mph từ tháng 9/2023.
-5. Xu hướng KSI hiệu chỉnh giữa đầu và cuối giai đoạn.
-
-KSI tính ở mức nạn nhân (`fact_casualty`): `KSI hiệu chỉnh = SUM(fatal_count) + SUM(adjusted_serious)`.
-
-#### Mô hình DSS
-
-| Tiêu chí | Cách tính từ xũkho | Trọng số | Lý do nghiệp vụ |
-| --- | --- | --- | --- |
-| Mức rủi ro | KSI hiệu chỉnh trung bình 2023–2025 trên 100.000 dân | 0,40 | Mục tiêu của quỹ là giảm số người chết và bị thương nặng. Chia theo dân số để không thiên vị địa bàn lớn |
-| Xu hướng | % thay đổi KSI hiệu chỉnh trung bình 2024–2025 so với 2021–2022 | 0,20 | Ưu tiên nơi tình hình đang xấu đi |
-| Người dễ tổn thương | Tỷ lệ KSI là người đi bộ, xe đạp, xe máy, e-scooter | 0,20 | Nhóm có tỷ lệ tử vong cao nhất (đi bộ 2,04%, xe máy 2,10%, so với ô tô 0,99%) |
-| Đường tốc độ cao | Tỷ lệ KSI trên đường có giới hạn từ 50 mph trở lên | 0,20 | Tỷ lệ vụ tử vong ở đường 60 mph gấp 8 lần đường 20 mph; cải tạo hạ tầng có hiệu quả rõ |
-
-Cả bốn tiêu chí đều theo nguyên tắc giá trị càng cao càng được ưu tiên. Mỗi tiêu chí được chuẩn hóa min-max rồi cộng theo trọng số.
-
-- **Intelligence:** loại các đơn vị có dưới 100 vụ trong 2023–2025 (5 đơn vị: Isles of Scilly và 4 vùng đảo hoặc vùng nhỏ của Scotland), vì số quá nhỏ làm tỷ lệ dao động ngẫu nhiên.
-- **Design:** chấm điểm có trọng số theo bảng trên.
-- **Choice:** chọn 10 đơn vị điểm cao nhất, kèm câu giải thích tiêu chí nào đóng góp nhiều nhất.
-- **What-if:** tăng trọng số xu hướng từ 0,20 lên 0,40, hoặc dùng KSI gốc thay cho KSI hiệu chỉnh, rồi xem danh sách top 10 thay đổi thế nào.
-
-#### Đánh giá
-
-- **Kiểm tra ngược:** chạy DSS chỉ trên số liệu 2021–2023, rồi xem 10 đơn vị được chọn có tiếp tục thuộc nhóm KSI cao trong 2024–2025 không. Cách này kiểm tra luôn hiện tượng hồi quy về trung bình.
-- **Tình huống xứ Wales:** so sánh tổng số vụ và KSI trên đường 20 và 30 mph trước và sau tháng 9/2023 (riêng số vụ: 1.843 năm 2021 xuống 1.488 năm 2025). Cần lưu ý số vụ ở đường 20 mph tăng phần lớn do đường được đổi nhãn.
-
-#### Dữ liệu bổ sung cần ghép
-
-- **Dân số giữa năm theo địa bàn** (ONS mid-year population estimates, Open Government Licence), ở cấp county và unitary authority, cho các năm 2021–2025.
-- Nếu còn thời gian: lưu lượng xe theo địa bàn (DfT road traffic statistics) để tính thêm KSI trên một tỷ dặm xe chạy.
+Ngày 10/10/2026, baseline STATS19 toàn quốc đã được nạp vào container và đối soát khớp: 513.801 vụ, 937.265 xe, 652.821 nạn nhân. Xem [`reports/validation/STATS19_LOAD.md`](reports/validation/STATS19_LOAD.md) và [`src/database/verify_load.sql`](src/database/verify_load.sql). Kết nối host qua `DW_DATABASE_URL` đã được sửa và kiểm chứng; lần nạp baseline dùng psql trong container. London mart và tích hợp Traffic chưa triển khai.
 
 ### Dữ liệu
 
@@ -175,6 +143,38 @@ Kết quả lần chạy ETL đủ 5 năm (kiểm tra lại ngày 08/10):
 10. **Chuẩn bị dữ liệu nộp bài.** Ba file nguồn tổng cộng khoảng 257 MB, riêng file vehicle 104,7 MB (sát giới hạn 100 MiB mỗi file của GitHub). Nên để bản trích (ví dụ năm 2025) trong `data/` và ghi link nguồn DfT trong báo cáo.
 
 ## How to use this source code
+
+### Chạy dashboard với PostgreSQL
+
+Kết nối host đã được kiểm chứng với user `dw`, database `road_safety_dw`. Dashboard chạy trực tiếp trên Windows, PostgreSQL chạy trong Docker. URL thực tế nằm trong `.env` (không commit).
+
+Dashboard đọc dữ liệu STATS19 thật từ PostgreSQL cho 33 London authorities, giai đoạn 2021–2025. Bộ lọc năm/địa bàn cập nhật số vụ, số nạn nhân, số tử vong và KSI hiệu chỉnh ở mức nạn nhân. Heathrow được gộp vào Hillingdon. Tích hợp Traffic và DSS chưa triển khai.
+
+1. Dùng `.env` trong root dự án (chép từ `.env.example` nếu chưa có). Đặt `DW_DATABASE_URL` khớp kết nối đã thành công trong công cụ quản lý database:
+
+```dotenv
+DW_DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
+```
+
+Mật khẩu có ký tự đặc biệt phải URL-encode, ví dụ `@` thành `%40`. Dashboard tự đọc `.env`; biến môi trường `DW_DATABASE_URL` có ưu tiên cao hơn. Không commit mật khẩu.
+
+2. Chạy từ PowerShell tại root repository:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+docker compose up -d db
+.venv\Scripts\python.exe src/frontend/warehouse.py
+.venv\Scripts\python.exe -m streamlit run src/frontend/app.py
+```
+
+3. Mở http://localhost:8501. Chọn năm/địa bàn ở sidebar; dùng **Refresh data** sau khi thay cấu hình hoặc nạp lại kho. Kết quả truy vấn được cache 60 giây. Dashboard báo lỗi khi kết nối thất bại và không thay bằng demo data.
+
+Nếu dùng biến môi trường cũ, có thể xóa override trong PowerShell để dashboard đọc `.env`:
+
+```powershell
+Remove-Item Env:DW_DATABASE_URL -ErrorAction SilentlyContinue
+```
+
 
 ### Cài đặt và chạy
 
