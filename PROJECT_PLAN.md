@@ -326,7 +326,7 @@ Lần chạy `scripts\check_db.ps1` đầu tiên trên máy người dùng: `db 
 
 Quyết định D12: chạy Windows host + Docker Desktop (WSL2 backend) cho PostgreSQL/PostGIS; ETL và test chạy bằng Python 3.13 trong `.venv` trên Windows (mã chỉ dùng thư viện chuẩn và `pathlib`, không phụ thuộc hệ điều hành). Không cần cài distro Ubuntu trong WSL. Thêm `scripts/check_db.ps1` để hoàn tất S0.
 
-Agent tiếp theo: D13 đã chốt Traffic Flow + Road Safety tại London, 2021–2025. Baseline STATS19 đã nạp qua container psql, row count và aggregate khớp (xem `reports/validation/STATS19_LOAD.md`). Bước tiếp theo: S4 (ERD, dictionary, DDL cho phần Traffic và London mart) dựa trên `reports/poc/`; host `DW_DATABASE_URL` đã sửa ở v0.3.7; kiểm chứng lại host ETL khi tự động hóa load. Dashboard STATS19 đã được người dùng yêu cầu nối DB trong phiên 0.3.6; DSS an toàn giao thông đã tích hợp ở v0.4.0; Traffic mart chưa triển khai. Không bật rate `candidate_*` khi chưa được duyệt.
+Agent tiếp theo: D13 đã chốt Traffic Flow + Road Safety tại London, 2021–2025. Baseline STATS19 đã nạp qua container psql, row count và aggregate khớp (xem `reports/validation/STATS19_LOAD.md`). Bước tiếp theo: S4 (ERD, dictionary, DDL cho phần Traffic và London mart) dựa trên `reports/poc/`; host `DW_DATABASE_URL` đã sửa ở v0.3.7; kiểm chứng lại host ETL khi tự động hóa load. Dashboard STATS19 đã được người dùng yêu cầu nối DB trong phiên 0.3.6; Traffic mart và DSS chưa triển khai. Không bật rate `candidate_*` khi chưa được duyệt.
 
 Ghi chú lịch sử (v0.1.0): agent tiếp theo nên bắt đầu bằng kiểm tra môi trường Windows và dựng project skeleton, đồng thời kiểm tra dữ liệu có thể truy cập. Không bắt đầu xây frontend hoặc coi các số profiling cũ là đã xác nhận.
 
