@@ -56,7 +56,7 @@ def main():
     detail = view.copy()
     detail.loc[detail.adjustment_missing > 0, "ksi_adjusted"] = float("nan")
     st.subheader("Authority and month detail")
-    st.dataframe(detail, use_container_width=True, hide_index=True)
+    st.dataframe(detail, width="stretch", hide_index=True)
     st.download_button("Download filtered CSV", detail.to_csv(index=False).encode("utf-8-sig"),
                        "london_road_safety.csv", "text/csv")
     st.caption("Heathrow is included in Hillingdon. Collision and casualty facts are aggregated "

@@ -62,7 +62,7 @@ increase the number of recommendations beyond the requested top N.''')
     alternatives, details, excluded = prepare_authorities(view.to_dict('records'), years)
     if excluded:
         st.warning(f'{len(excluded)} authorities excluded by data eligibility checks.')
-        st.dataframe(pd.DataFrame(excluded), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(excluded), hide_index=True, width="stretch")
     if len(alternatives) < 2:
         st.info('At least two authorities with complete selected years are needed for comparative recommendations.')
         return
@@ -92,7 +92,7 @@ increase the number of recommendations beyond the requested top N.''')
         st.write(f"{leader.authority_name}: score {leader.score:.4f}; largest contribution is "
                  f"{LABELS[strongest]} ({parts[strongest]:.4f} score points). " + result.reason)
     st.subheader('Ranking and criterion contributions')
-    st.dataframe(current, hide_index=True, use_container_width=True)
+    st.dataframe(current, hide_index=True, width="stretch")
     st.subheader('What-if comparison with default weights')
     changed = int((comparison['rank'] != comparison.rank_baseline).sum())
     selection_changes = int((comparison.recommended != comparison.recommended_baseline).sum())
@@ -100,6 +100,6 @@ increase the number of recommendations beyond the requested top N.''')
              'Baseline uses default weights and a zero threshold on the same eligible authorities.')
     st.dataframe(comparison[['authority_name', 'rank_baseline', 'rank', 'rank_gain',
                              'score_baseline', 'score', 'recommended_baseline', 'recommended']],
-                 hide_index=True, use_container_width=True)
+                 hide_index=True, width="stretch")
     st.download_button('Download DSS comparison', comparison.to_csv(index=False).encode('utf-8-sig'),
                        'london_dss_comparison.csv', 'text/csv')
