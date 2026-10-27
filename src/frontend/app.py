@@ -12,7 +12,9 @@ def load_facts():
 
 def main():
     st.set_page_config(page_title="London Road Safety", layout="wide")
-    st.title("London · Road Safety")
+    with st.sidebar:
+        page = st.radio("Workspace", ["BI Dashboard", "Decision Support"], key="workspace")
+    st.title("London · " + page)
     st.caption("PostgreSQL warehouse · STATS19 · 2021–2025 · London")
     with st.sidebar:
         st.header("Filters")
@@ -39,6 +41,16 @@ def main():
     if view.empty:
         st.info("Select at least one year and authority with data.")
         st.stop()
+    st.caption("Selected scope: " + ", ".join(map(str, sorted(selected_years)))
+               + f" · {len(selected_authorities)} authorities · Heathrow included in Hillingdon")
+    if page == "Decision Support":
+        render_dss(view, selected_years)
+    else:
+        render_bi(view)
+
+
+def render_bi(view):
+    st.caption("Explore historical collisions and casualties for the selected scope.")
     missing = int(view.adjustment_missing.sum())
     cols = st.columns(4)
     for col, label, value in zip(cols[:3], ["Collisions", "Casualties", "Fatalities"],
@@ -61,7 +73,6 @@ def main():
                        "london_road_safety.csv", "text/csv")
     st.caption("Heathrow is included in Hillingdon. Collision and casualty facts are aggregated "
                "separately before joining. Traffic integration is pending.")
-    render_dss(view, selected_years)
 
 if __name__ == "__main__":
     main()

@@ -77,22 +77,42 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(app.exception)
         self.assertEqual(app.metric[3].value, "Incomplete")
 
+    def test_navigation_preserves_scope_and_separates_views(self):
+        from test_dss import monthly_rows
+        with patch.object(warehouse, 'load_monthly_facts', return_value=monthly_rows()):
+            app = AppTest.from_file(str(APP), default_timeout=10).run()
+            self.assertEqual(len(app.metric), 4)
+            self.assertEqual(len(app.slider), 0)
+            app.multiselect[0].set_value([2025]).run()
+            app.multiselect[1].set_value(['E09000001', 'E09000002']).run()
+            app.radio[0].set_value('Decision Support').run()
+            self.assertFalse(app.exception)
+            self.assertEqual(len(app.metric), 0)
+            self.assertEqual(app.multiselect[0].value, [2025])
+            self.assertEqual(len(app.dataframe[0].value), 2)
+            app.radio[0].set_value('BI Dashboard').run()
+            self.assertFalse(app.exception)
+            self.assertEqual(app.metric[0].value, '240')
+            self.assertEqual(len(app.slider), 0)
+
     def test_dss_weights_and_threshold_change_recommendations(self):
         from test_dss import monthly_rows
         with patch.object(warehouse, 'load_monthly_facts', return_value=monthly_rows()):
             app = AppTest.from_file(str(APP), default_timeout=10).run()
             self.assertFalse(app.exception)
-            self.assertEqual(app.dataframe[1].value.iloc[0].authority_code, 'E09000001')
+            app.radio[0].set_value('Decision Support').run()
+            self.assertEqual(len(app.metric), 0)
+            self.assertEqual(app.dataframe[0].value.iloc[0].authority_code, 'E09000001')
             next(s for s in app.slider if s.key == 'dss_threshold').set_value(.95)
             app.run()
             self.assertFalse(app.exception)
-            self.assertFalse(app.dataframe[1].value.recommended.any())
+            self.assertFalse(app.dataframe[0].value.recommended.any())
             next(s for s in app.slider if s.key == 'dss_threshold').set_value(0.)
             for key, value in [('mean_ksi', 0), ('ksi_share_pct', 0), ('ksi_change_pct', 100)]:
                 next(s for s in app.slider if s.key == 'dss_weight_' + key + '_multi').set_value(value)
             app.run()
             self.assertFalse(app.exception)
-            self.assertEqual(app.dataframe[1].value.iloc[0].authority_code, 'E09000002')
+            self.assertEqual(app.dataframe[0].value.iloc[0].authority_code, 'E09000002')
             next(s for s in app.slider if s.key == 'dss_weight_ksi_change_pct_multi').set_value(0)
             app.run()
             self.assertFalse(app.exception)
@@ -102,6 +122,7 @@ class DashboardTests(unittest.TestCase):
         from test_dss import monthly_rows
         with patch.object(warehouse, 'load_monthly_facts', return_value=monthly_rows()):
             app = AppTest.from_file(str(APP), default_timeout=10).run()
+            app.radio[0].set_value('Decision Support').run()
             app.multiselect[0].set_value([2025]).run()
             self.assertFalse(app.exception)
             slider = next(s for s in app.slider if s.key == 'dss_weight_ksi_change_pct_single')
