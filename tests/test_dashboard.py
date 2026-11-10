@@ -75,7 +75,7 @@ class DashboardTests(unittest.TestCase):
         with patch.object(warehouse, "load_monthly_facts", return_value=rows):
             app = AppTest.from_file(str(APP), default_timeout=10).run()
         self.assertFalse(app.exception)
-        self.assertEqual(app.metric[3].value, "Incomplete")
+        self.assertEqual(app.metric[3].value, "Chưa đầy đủ")
 
     def test_navigation_preserves_scope_and_separates_views(self):
         from test_dss import monthly_rows
@@ -116,7 +116,7 @@ class DashboardTests(unittest.TestCase):
             next(s for s in app.slider if s.key == 'dss_weight_ksi_change_pct_multi').set_value(0)
             app.run()
             self.assertFalse(app.exception)
-            self.assertTrue(any('above zero' in w.value for w in app.warning))
+            self.assertTrue(any('lớn hơn 0' in w.value for w in app.warning))
 
     def test_dss_single_year_disables_trend(self):
         from test_dss import monthly_rows
